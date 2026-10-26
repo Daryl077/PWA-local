@@ -1,2 +1,8 @@
-// Agrega a `expect` los matchers de jest-dom (toBeInTheDocument, etc.).
 import '@testing-library/jest-dom/vitest'
+import { cleanup } from '@testing-library/react'
+import { afterEach } from 'vitest'
+
+// Con `globals: false` Testing Library no puede registrar su limpieza automática.
+afterEach(() => {
+  cleanup()
+})
