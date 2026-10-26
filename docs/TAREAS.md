@@ -5,7 +5,7 @@ Estado: `[ ]` pendiente, `[x]` hecha. La rama de cada tarea es `feat/T-0XX-nombr
 Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de tarea no se editan[cite: 7].
 
 ## Cimientos y Calidad
-- [ ] **T-001 Proyecto base**
+- [x] **T-001 Proyecto base**
   - Responsable: Persona 1. Depende de: nada[cite: 7].
   - Objetivo: proyecto Vite con React y TypeScript estricto, scripts de `package.json` según AGENTS.md y `.gitignore`[cite: 1, 7].
   - Requisitos: RNF-PLA-01[cite: 6, 7].

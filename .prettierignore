@@ -1,0 +1,8 @@
+dist
+coverage
+package-lock.json
+.agents
+docs
+AGENTS.md
+MEMORY.md
+README.md

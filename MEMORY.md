@@ -1,10 +1,15 @@
 # MEMORY.md
 
 ## Estado actual
-- Proyecto nuevo, sin código. Siguiente tarea: T-001 (docs/TAREAS.md).
-- Versiones instaladas: (se anotan al terminar T-001).
+- Proyecto base (T-001) completado e integrado en main.
+- Siguiente tarea: T-002a (Linter y Formato) para Persona 1 / T-003 (Estilos base) para Persona 2.
+- Versiones instaladas (T-001):
+  - Node.js: >=22.12.0
+  - React / React-DOM: 19.3.1
+  - TypeScript: 6.0.3
+  - Vite: 8.3.5 (@vitejs/plugin-react 6.1.2)
 - Módulo de referencia de estructura: (se anota al terminar el primer módulo, auth).
-- Integrador del equipo: (pendiente de acordar entre las dos personas).
+- Integrador del equipo: Jair Rojas Anzoategui.
 
 ## Decisiones tomadas
 - La licorería pidió un sistema local, en un solo dispositivo. Por eso es una PWA sin backend, con los datos en Dexie (IndexedDB) detrás de interfaces de almacenamiento. Así se puede agregar un servidor después sin reescribir las reglas de negocio.
@@ -12,25 +17,22 @@
 - Roles: solo Dueño y Vendedor. No hay Bodeguero. El dueño designa a los vendedores.
 - Dinero en centavos enteros. Vencimiento como fecha sin hora (YYYY-MM-DD).
 - Plataformas objetivo: Android, iPhone, iPad y tablets, instalando la PWA desde el navegador.
-- Desarrollo en equipo de dos personas, cada una con su agente. Módulos por área de negocio (no micro-módulos), que se hablan solo por los contratos de docs/CONTRATOS.md. Se evita la micro-modularidad extrema porque aumenta el costo de integrar y revisar.
-- Un solo archivo de reglas, AGENTS.md, compatible con opencode y Antigravity. Sin GEMINI.md.
+- Desarrollo en equipo de dos personas, cada una con su agente. Módulos por área de negocio (no micro-módulos), que se hablan solo por los contratos de docs/CONTRATOS.md.
+- Un solo archivo de reglas, AGENTS.md, compatible con opencode y Antigravity.
 - Si se acaban los tokens, se usa el modo chat web de docs/MODELOS.md.
+- Ajustes de gobernanza (auditoría Nemotron): se dividieron T-002 (a/b), T-013 (a/b) y T-015 (a/b) para eliminar la dependencia circular T-010 <-> T-015 y permitir el inicio limpio de la Fase 1.
 
 ## Pendiente de confirmar con el dueño
-- Si necesita ver ventas y reportes desde su propio celular. Si la respuesta es sí, hace falta servidor o sincronización.
-- Venta a crédito y cuentas por cobrar (RF-RPT-03): cómo se registran.
-- Qué pasa si se intenta vender más que el stock registrado.
-- Umbrales de vencimiento por categoría y quién autoriza los precios especiales.
+- Si necesita ver ventas y reportes desde su propio celular (si la respuesta es sí, hará falta servidor o sincronización).
+- Venta a crédito y cuentas por cobrar (RF-RPT-03): diferido a Fase 8.
+- Qué hacer cuando se vende más que el stock registrado (fijado provisionalmente en R-04: rechazo total).
 
 ## Hoja de ruta
-- Cimientos (Persona 1): T-001, T-002, T-005. En paralelo (Persona 2): T-003, T-004, T-007, T-008, T-009.
-- Fase 1: seguridad, usuarios y roles locales (RF-SEG-01 a 04, RNF-PLA-09), más T-015 (contratos en código y fakes).
-- Fase 2: inventario (RF-INV-01 a 05). Fase 3: ventas con efectivo y QR (RF-POS-01 a 04).
-- Fase 4: caja y turnos (RF-CAJ-01 a 03).
-- Fase 5: respaldo y PWA robusta (RNF-PLA-05 y 06). No entregar al dueño sin esta fase.
-- Fase 6: compras, proveedores y crédito (RF-COM-01, 03 y 07).
-- Fase 7: reportes del dueño (RF-RPT-01 a 04).
-- Fase 8: requisitos Should y Could.
+- Cimientos y Calidad: T-001 [x], T-002a, T-002b, T-005.
+- Fase 1: T-015a (contratos base), T-010 (roles), T-011 (hash), T-012 (primer uso), T-013a/b (auth y bloqueo), T-014 (vendedores), T-015b (fakes).
+- En paralelo Persona 2: T-003 (estilos), T-004 (PWA), T-006 (persist), T-007 (lint imports), T-008 (CI), T-009 (context pack).
+- Fase 2 a 7: Inventario, Caja, Ventas, Respaldo, Compras, Reportes.
 
 ## Errores a evitar
-- Ninguno registrado todavía.
+- Vite 8 exige Node >=22.12.0; no bajar esa versión.
+- En ramas de tareas no editar MEMORY.md ni docs/TAREAS.md (solo el integrador en main).
