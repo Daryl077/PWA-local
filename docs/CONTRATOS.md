@@ -1,14 +1,13 @@
 # CONTRATOS.md - Acuerdo entre módulos
 
-Este archivo es el acuerdo entre las dos personas. Cada módulo se desarrolla contra estos contratos, y el código vive en `src/contracts/`. Lo que está aquí se escribe en TypeScript tal cual, y cualquier cambio necesita el acuerdo de ambas personas.
+Este archivo es el acuerdo entre las dos personas[cite: 3]. Cada módulo se desarrolla contra estos contratos, y el código vive en `src/contracts/`[cite: 3]. Lo que está aquí se escribe en TypeScript tal cual, y cualquier cambio necesita el acuerdo de ambas personas[cite: 3].
 
 ## Reglas
-- Un módulo usa a otro solo por su servicio de este archivo, nunca por sus archivos internos.
-- Cada servicio tiene un `fake.ts` en memoria. Los módulos que dependen de él se prueban con el fake mientras la versión real no existe.
-- Un cambio de contrato va en un PR aparte, que solo toca `docs/CONTRATOS.md`, `src/contracts/` y los fakes afectados.
-- Las funciones reciben la fecha de hoy (`today`) como parámetro. No llaman a `Date.now()`.
-- Los servicios devuelven `Result` en vez de lanzar errores por casos del negocio (stock insuficiente, caja ya abierta).
-- Los contratos de compras y reportes se definen al llegar a esas fases.
+- Un módulo usa a otro solo por su servicio de este archivo, nunca por sus archivos internos[cite: 3].
+- Cada servicio tiene un `fake.ts` en memoria[cite: 3]. Los módulos que dependen de él se prueban con el fake mientras la versión real no existe[cite: 3].
+- Un cambio de contrato va en un PR aparte, que solo toca `docs/CONTRATOS.md`, `src/contracts/` y los fakes afectados[cite: 3].
+- Las funciones reciben la fecha de hoy (`today`) como parámetro[cite: 3]. No llaman a `Date.now()`[cite: 3].
+- Los servicios devuelven `Result` en vez de lanzar errores por casos del negocio (stock insuficiente, caja ya abierta)[cite: 3].
 
 ## Tipos base
 ```ts
@@ -24,7 +23,7 @@ type Result<T> = { ok: true; value: T } | { ok: false; error: AppError };
 ## Entidades
 ```ts
 type Role = 'owner' | 'seller';
-type UserInfo = { id: Id; name: string; role: Role; active: boolean }; // sin contraseña
+type UserInfo = { id: Id; name: string; role: Role; active: boolean };
 
 type Category = { id: Id; name: string; expiryAlertDays: number };
 type Product = {
@@ -41,7 +40,6 @@ type StockMovement =
   | (MovementBase & { type: 'sale'; quantity: number; saleId: Id })
   | (MovementBase & { type: 'waste'; quantity: number; reason: WasteReason; lossCents: Cents })
   | (MovementBase & { type: 'adjustment'; delta: number; reason: string });
-// Unidades de un lote = ingresos - ventas - mermas + ajustes. No se guarda como número editable.
 
 type Payment =
   | { type: 'cash'; receivedCents: Cents; changeCents: Cents }
@@ -52,7 +50,8 @@ type Sale = {
   lines: SaleLine[]; totalCents: Cents; payment: Payment; createdAt: IsoDateTime;
 };
 
-type CashClosing = { countedCents: Cents; expectedCents: Cents; differenceCents: Cents; explanation?: string };
+// Si differenceCents !== 0, explanation es obligatoria
+type CashClosing = { countedCents: Cents; expectedCents: Cents; differenceCents: Cents; explanation: string };
 type CashSession = {
   id: Id; sellerId: Id; openedAt: IsoDateTime; openingFloatCents: Cents;
   closedAt?: IsoDateTime; closing?: CashClosing;
@@ -66,7 +65,7 @@ type CashExpense = { id: Id; cashSessionId: Id; amountCents: Cents; description:
 type Action =
   | 'sell' | 'view_stock' | 'open_own_cash'
   | 'view_costs' | 'edit_prices' | 'adjust_stock' | 'manage_sellers'
-  | 'view_reports' | 'make_backup';
+  | 'view_reports' | 'make_backup' | 'receive_lot' | 'manage_categories' | 'manage_products';
 
 interface AuthService {
   currentUser(): UserInfo | null;
@@ -74,49 +73,44 @@ interface AuthService {
   logout(): void;
   lock(): void;
   can(action: Action): boolean;
-  createSeller(name: string, password: string): Promise<Result<UserInfo>>;   // solo Dueño
-  setSellerActive(id: Id, active: boolean): Promise<Result<UserInfo>>;       // solo Dueño
+  createSeller(name: string, password: string): Promise<Result<UserInfo>>;
+  setSellerActive(id: Id, active: boolean): Promise<Result<UserInfo>>;
   listSellers(): Promise<UserInfo[]>;
 }
 
-// Fase 2. Módulo inventory
 type LotAllocation = { lotId: Id; quantity: number; unitCostCents: Cents };
 
 interface InventoryService {
-  getStock(productId: Id, today: IsoDate): Promise<number>; // no cuenta lotes vencidos
-  // PEPS, sin lotes vencidos. Falla con stock insuficiente (REGLAS R-01, R-02, R-04)
+  getStock(productId: Id, today: IsoDate): Promise<number>;
   allocateForSale(productId: Id, quantity: number, today: IsoDate): Promise<Result<LotAllocation[]>>;
-  listExpiringLots(today: IsoDate): Promise<Array<{ lot: Lot; productName: string; daysLeft: number }>>;
+  listExpiringLots(today: IsoDate): Promise<Array<{ Lot; daysLeft: lot: number productName: string; }>>;
   registerWaste(input: { lotId: Id; quantity: number; reason: WasteReason }): Promise<Result<StockMovement>>;
   receiveLot(input: { productId: Id; quantity: number; expiryDate: IsoDate; unitCostCents: Cents }): Promise<Result<Lot>>;
 }
 
-// Fase 4. Módulo cash
 interface CashService {
-  getOpenSession(sellerId: Id): Promise<CashSession | null>;
+  getOpenSession(sellerId: Id): Promise<CashSession null |>;
   openSession(sellerId: Id, openingFloatCents: Cents): Promise<Result<CashSession>>;
   addExpense(input: { cashSessionId: Id; amountCents: Cents; description: string }): Promise<Result<CashExpense>>;
   closeSession(input: { cashSessionId: Id; countedCents: Cents; explanation?: string }): Promise<Result<CashSession>>;
 }
 
-// Fase 3. Módulo sales
 type NewPayment = { type: 'cash'; receivedCents: Cents } | { type: 'qr'; receiptConfirmed: true };
 type NewSale = {
-  id: Id;                       // lo crea el cliente. Repetirlo no duplica la venta
+  id: Id; // Clave de idempotencia. Si ya existe, registerSale no la duplica y devuelve la existente.
   sellerId: Id;
   lines: Array<{ productId: Id; quantity: number }>;
   payment: NewPayment;
 };
 
 interface SalesService {
-  // Exige caja abierta. Descuenta stock por PEPS y guarda todo en una sola transacción
+  // SalesService asigna lotes con InventoryService.allocateForSale, crea los StockMovement ('sale') y guarda la venta en una sola transacción.
   registerSale(sale: NewSale, today: IsoDate): Promise<Result<Sale>>;
 }
 
-// Fase 5. Módulo backup
 interface BackupService {
   exportBackup(): Promise<Blob>;
-  importBackup(file: File): Promise<Result<{ restoredTables: number }>>;
+  importBackup(file: File): Promise<Result<{ number restoredTables: }>>;
 }
 ```
 
