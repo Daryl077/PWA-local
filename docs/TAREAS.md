@@ -18,7 +18,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Responsable: Persona 1. Depende de: T-002a.
   - Objetivo: Vitest y Testing Library con una prueba de ejemplo.
   - Criterios: `npm run test` pasa.
-- [ ] **T-005 Almacenamiento local**
+- [x] **T-005 Almacenamiento local con Dexie**
   - Responsable: Persona 1. Depende de: T-002b[cite: 7].
   - Objetivo: `src/contracts/storage.ts` con las interfaces `Repository`, `AppendOnlyRepository` y `Storage` de CONTRATOS.md, y su implementación con Dexie en `src/storage/`, con el esquema versión 1 mínimo (tabla `settings`)[cite: 3, 7].
   - Requisitos: RNF-PLA-05[cite: 6, 7].
