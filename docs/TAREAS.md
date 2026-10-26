@@ -14,7 +14,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Responsable: Persona 1. Depende de: T-001.
   - Objetivo: ESLint con configuración plana (sin `any`, límite de complejidad) y Prettier.
   - Criterios: `npm run lint` pasa correctamente.
-- [ ] **T-002b Framework de Pruebas**
+- [x] **T-002b Framework de Pruebas**
   - Responsable: Persona 1. Depende de: T-002a.
   - Objetivo: Vitest y Testing Library con una prueba de ejemplo.
   - Criterios: `npm run test` pasa.

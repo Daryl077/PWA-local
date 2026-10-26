@@ -1,8 +1,8 @@
 # MEMORY.md
 
 ## Estado actual
-- Tareas T-001 y T-002a completadas e integradas en main.
-- Siguiente tarea: T-002b (Framework de Pruebas) para Persona 1 / T-003 (Estilos base) para Persona 2.
+- Tareas T-001, T-002a y T-002b completadas e integradas en main.
+- Siguiente tarea: T-005 (Almacenamiento local con Dexie) para Persona 1 / T-003 (Estilos base) para Persona 2.
 - Versiones instaladas:
   - Node.js: >=22.12.0
   - React / React-DOM: 19.3.1
@@ -10,6 +10,8 @@
   - Vite: 8.3.5 (@vitejs/plugin-react 6.1.2)
   - ESLint: 10.13.0 (@eslint/js 10.0.1, typescript-eslint 8.72.0)
   - Prettier: 3.9.10
+  - Vitest: 5.0.5 (jsdom 28.1.0)
+  - Testing Library React: 16.3.3 (@testing-library/jest-dom 7.0.1)
 - Módulo de referencia de estructura: (se anota al terminar el primer módulo, auth).
 - Integrador del equipo: daryl.
 
