@@ -8,6 +8,8 @@
   - React / React-DOM: 19.3.1
   - TypeScript: 6.0.3
   - Vite: 8.3.5 (@vitejs/plugin-react 6.1.2)
+  - ESLint: 10
+  - Prettier: 3
 - Módulo de referencia de estructura: (se anota al terminar el primer módulo, auth).
 - Integrador del equipo: Jair Rojas Anzoategui.
 

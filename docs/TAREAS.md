@@ -10,7 +10,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: proyecto Vite con React y TypeScript estricto, scripts de `package.json` según AGENTS.md y `.gitignore`[cite: 1, 7].
   - Requisitos: RNF-PLA-01[cite: 6, 7].
   - Criterios: `npm run dev` y `npm run build` funcionan. Existen las carpetas `src/contracts`, `src/storage`, `src/features`, `src/shared` y `scripts` (con `.gitkeep`)[cite: 1, 3, 7].
-- [ ] **T-002a Linter y Formato**
+- [x] **T-002a Linter y Formato**
   - Responsable: Persona 1. Depende de: T-001.
   - Objetivo: ESLint con configuración plana (sin `any`, límite de complejidad) y Prettier.
   - Criterios: `npm run lint` pasa correctamente.
