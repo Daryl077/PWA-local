@@ -1,17 +1,17 @@
 # MEMORY.md
 
 ## Estado actual
-- Proyecto base (T-001) completado e integrado en main.
-- Siguiente tarea: T-002a (Linter y Formato) para Persona 1 / T-003 (Estilos base) para Persona 2.
-- Versiones instaladas (T-001):
+- Tareas T-001 y T-002a completadas e integradas en main.
+- Siguiente tarea: T-002b (Framework de Pruebas) para Persona 1 / T-003 (Estilos base) para Persona 2.
+- Versiones instaladas:
   - Node.js: >=22.12.0
   - React / React-DOM: 19.3.1
   - TypeScript: 6.0.3
   - Vite: 8.3.5 (@vitejs/plugin-react 6.1.2)
-  - ESLint: 10
-  - Prettier: 3
+  - ESLint: 10.13.0 (@eslint/js 10.0.1, typescript-eslint 8.72.0)
+  - Prettier: 3.9.10
 - Módulo de referencia de estructura: (se anota al terminar el primer módulo, auth).
-- Integrador del equipo: Jair Rojas Anzoategui.
+- Integrador del equipo: daryl.
 
 ## Decisiones tomadas
 - La licorería pidió un sistema local, en un solo dispositivo. Por eso es una PWA sin backend, con los datos en Dexie (IndexedDB) detrás de interfaces de almacenamiento. Así se puede agregar un servidor después sin reescribir las reglas de negocio.
