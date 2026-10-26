@@ -65,14 +65,14 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Criterios: Cada fake tiene una prueba mínima y permite iniciar el trabajo de la Persona 2[cite: 3, 7].
 
 ## En paralelo desde el inicio (Persona 2)
-- [ ] **T-003 Estilos y diseño base**
-  - Responsable: Persona 2. Depende de: T-001[cite: 7].
+- [x] **T-003 Estilos y diseño base**
+  - Responsable: Persona 2. Depende de: T-001.
   - Objetivo: Tailwind CSS 4 con el plugin de Vite y un diseño base con barra de navegación inferior en celular y lateral en tablet[cite: 7].
-  - Requisitos: RNF-PLA-02[cite: 6, 7].
+  - Requisitos: RNF-PLA-02.
   - Criterios: se ve bien a 360 px y a 768 px de ancho. Botones de al menos 44 px[cite: 7].
 - [ ] **T-004 PWA instalable**
-  - Responsable: Persona 2. Depende de: T-001[cite: 7].
-  - Objetivo: vite-plugin-pwa con manifest e íconos de prueba[cite: 7].
+  - Responsable: Persona 2. Depende de: T-001.
+  - Objetivo: vite-plugin-pwa con manifest e íconos de prueba.
   - Requisitos: RNF-PLA-01, RNF-PLA-05[cite: 6, 7].
   - Criterios: tras `npm run build` y `npm run preview`, la app se puede instalar y carga sin conexión[cite: 7].
 - [ ] **T-006 Almacenamiento persistente**

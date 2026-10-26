@@ -1,18 +1,19 @@
 # MEMORY.md
 
 ## Estado actual
-- Tareas T-001, T-002a y T-002b completadas e integradas en main.
-- Siguiente tarea: T-003 (Estilos y diseño base) para la Persona 2.
+- Tareas T-001, T-002a, T-002b y T-003 completadas e integradas en main.
+- Siguiente tarea: T-005 (Almacenamiento local con Dexie) para Persona 1 / T-004 (PWA instalable) para Persona 2.
 - Versiones instaladas:
-  - Node.js: >=22.12.0[cite: 1]
-  - React / React-DOM: 19.3.1[cite: 1]
-  - TypeScript: 6.0.3[cite: 1]
-  - Vite: 8.3.5 (@vitejs/plugin-react 6.1.2)[cite: 1]
+  - Node.js: >=22.12.0
+  - React / React-DOM: 19.3.1
+  - TypeScript: 6.0.3
+  - Vite: 8.3.5 (@vitejs/plugin-react 6.1.2)
   - ESLint: 10.13.0 (@eslint/js 10.0.1, typescript-eslint 8.72.0)
   - Prettier: 3.9.10
   - Vitest: 5.0.5 (jsdom 28.1.0)
   - Testing Library React: 16.3.3 (@testing-library/jest-dom 7.0.1)
-- Módulo de referencia de estructura: (se anota al terminar el primer módulo, auth)[cite: 2].
+  - Tailwind CSS: 4.3.3 (@tailwindcss/vite 4.3.3)
+- Módulo de referencia de estructura: (se anota al terminar el primer módulo, auth).
 - Integrador del equipo: daryl.
 
 ## Decisiones tomadas
@@ -32,9 +33,8 @@
 - Qué hacer cuando se vende más que el stock registrado (fijado provisionalmente en R-04: rechazo total).
 
 ## Hoja de ruta
-- Cimientos y Calidad: T-001 [x], T-002a [x], T-002b [x], T-005.
-- Fase 1 (Persona 1): T-015a, T-010, T-011, T-012, T-013a/b, T-014, T-015b.
-- En paralelo (Persona 2): T-003 [ ] (en curso), T-004, T-006, T-007, T-008, T-009.
+- Cimientos y Calidad: T-001 [x], T-002a [x], T-002b [x], T-005 [ ] (siguiente Persona 1).
+- En paralelo (Persona 2): T-003 [x], T-004 [ ] (siguiente Persona 2), T-006, T-007, T-008, T-009.
 - Fase 2 a 7: Inventario, Caja, Ventas, Respaldo, Compras, Reportes.
 
 ## Errores a evitar
