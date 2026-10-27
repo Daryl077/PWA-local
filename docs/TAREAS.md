@@ -25,7 +25,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Criterios: pruebas de lectura, escritura y transacción que se deshace si falla. Se autoriza `fake-indexeddb` solo para pruebas[cite: 7].
 
 ## Fase 1: Seguridad y Roles Locales (Persona 1)
-- [ ] **T-015a Tipos y Contratos del Dominio**
+- [x] **T-015a Tipos y Contratos del Dominio**
   - Responsable: Persona 1. Depende de: T-005.
   - Objetivo: Crear `src/contracts/` con los tipos base y las interfaces esenciales de CONTRATOS.md para desbloquear el dominio (rompe el ciclo con T-010)[cite: 3].
   - Criterios: Typecheck pasa y los contratos básicos están disponibles.
@@ -75,7 +75,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: vite-plugin-pwa con manifest e íconos de prueba.
   - Requisitos: RNF-PLA-01, RNF-PLA-05.
   - Criterios: tras `npm run build` y `npm run preview`, la app se puede instalar y carga sin conexión[cite: 7].
-- [ ] **T-006 Almacenamiento persistente**
+- [x] **T-006 Almacenamiento persistente**
   - Responsable: Persona 2. Depende de: T-004, T-005.
   - Objetivo: pedir almacenamiento persistente al iniciar y mostrar en una pantalla "Estado del sistema" si se concedió y cuánto espacio se usa[cite: 1, 7].
   - Requisitos: RNF-PLA-06[cite: 6, 7].
