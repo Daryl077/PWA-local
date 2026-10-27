@@ -70,13 +70,13 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: Tailwind CSS 4 con el plugin de Vite y un diseño base con barra de navegación inferior en celular y lateral en tablet[cite: 7].
   - Requisitos: RNF-PLA-02.
   - Criterios: se ve bien a 360 px y a 768 px de ancho. Botones de al menos 44 px[cite: 7].
-- [ ] **T-004 PWA instalable**
+- [x] **T-004 PWA instalable**
   - Responsable: Persona 2. Depende de: T-001.
   - Objetivo: vite-plugin-pwa con manifest e íconos de prueba.
-  - Requisitos: RNF-PLA-01, RNF-PLA-05[cite: 6, 7].
+  - Requisitos: RNF-PLA-01, RNF-PLA-05.
   - Criterios: tras `npm run build` y `npm run preview`, la app se puede instalar y carga sin conexión[cite: 7].
 - [ ] **T-006 Almacenamiento persistente**
-  - Responsable: Persona 2. Depende de: T-004, T-005[cite: 7].
+  - Responsable: Persona 2. Depende de: T-004, T-005.
   - Objetivo: pedir almacenamiento persistente al iniciar y mostrar en una pantalla "Estado del sistema" si se concedió y cuánto espacio se usa[cite: 1, 7].
   - Requisitos: RNF-PLA-06[cite: 6, 7].
   - Criterios: la pantalla muestra ambos datos y maneja el caso en que el navegador no lo permite[cite: 7].
