@@ -39,7 +39,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: función para guardar y verificar contraseñas con Web Crypto (PBKDF2)[cite: 7].
   - Requisitos: RF-SEG-01[cite: 6, 7].
   - Criterios: la contraseña nunca se guarda en texto plano. Una contraseña errónea falla con un mensaje claro[cite: 7].
-- [ ] **T-012 Primer uso: crear al Dueño**
+- [x] **T-012 Primer uso: crear al Dueño**
   - Responsable: Persona 1. Depende de: T-005, T-010, T-011[cite: 7].
   - Objetivo: pantalla que crea el usuario Dueño la primera vez que se abre la app[cite: 7].
   - Requisitos: RF-SEG-01[cite: 6, 7].
