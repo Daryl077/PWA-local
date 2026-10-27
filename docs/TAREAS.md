@@ -34,7 +34,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: tipos `Role` y `Action` y función `can(role, action)` en `src/features/auth/domain/`[cite: 7].
   - Requisitos: RF-SEG-02, RF-SEG-04[cite: 6, 7].
   - Criterios: pruebas que confirman que el Vendedor no puede ver costos ni administrar usuarios[cite: 7].
-- [ ] **T-011 Hash de contraseñas**
+- [x] **T-011 Hash de contraseñas**
   - Responsable: Persona 1. Depende de: T-002b[cite: 7].
   - Objetivo: función para guardar y verificar contraseñas con Web Crypto (PBKDF2)[cite: 7].
   - Requisitos: RF-SEG-01[cite: 6, 7].
