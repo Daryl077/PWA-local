@@ -1,8 +1,8 @@
 # MEMORY.md
 
 ## Estado actual
-- Tareas T-001, T-002a, T-002b, T-003, T-004, T-005, T-006 y T-015a completadas e integradas en main.
-- Siguiente tarea: T-010 (Roles y permisos en el dominio) para Persona 1 / T-007 (Regla de importaciones entre módulos) para Persona 2.
+- Tareas T-001, T-002a, T-002b, T-003, T-004, T-005, T-006, T-015a y T-010 completadas e integradas en main.
+- Siguiente tarea: T-011 (Hash de contraseñas con Web Crypto PBKDF2) para Persona 1 / T-007 (Regla de importaciones entre módulos) para Persona 2.
 - Versiones instaladas:
   - Node.js: >=22.12.0
   - React / React-DOM: 19.3.1
@@ -35,7 +35,7 @@
 
 ## Hoja de ruta
 - Cimientos y Calidad: T-001 [x], T-002a [x], T-002b [x], T-005 [x].
-- Fase 1 (Persona 1): T-015a [x], T-010 [ ] (siguiente Persona 1), T-011, T-012, T-013a/b, T-014, T-015b.
+- Fase 1 (Persona 1): T-015a [x], T-010 [x], T-011 [ ] (siguiente Persona 1), T-012, T-013a/b, T-014, T-015b.
 - En paralelo (Persona 2): T-003 [x], T-004 [x], T-006 [x], T-007 [ ] (siguiente Persona 2), T-008, T-009.
 - Fase 2 a 7: Inventario, Caja, Ventas, Respaldo, Compras, Reportes.
 

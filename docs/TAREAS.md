@@ -29,7 +29,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Responsable: Persona 1. Depende de: T-005.
   - Objetivo: Crear `src/contracts/` con los tipos base y las interfaces esenciales de CONTRATOS.md para desbloquear el dominio (rompe el ciclo con T-010)[cite: 3].
   - Criterios: Typecheck pasa y los contratos básicos están disponibles.
-- [ ] **T-010 Roles y permisos en el dominio**
+- [x] **T-010 Roles y permisos en el dominio**
   - Responsable: Persona 1. Depende de: T-015a[cite: 7].
   - Objetivo: tipos `Role` y `Action` y función `can(role, action)` en `src/features/auth/domain/`[cite: 7].
   - Requisitos: RF-SEG-02, RF-SEG-04[cite: 6, 7].
