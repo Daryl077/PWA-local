@@ -1,9 +1,10 @@
-import type { Result } from '../../../contracts/common'
+import type { AppError, Id, Result } from '../../../contracts/common'
 import type { UserInfo, UserRecord } from '../../../contracts/entities'
 import type { Action, AuthService } from '../../../contracts/services'
 import type { Storage } from '../../../contracts/storage'
 import { can } from './permissions'
-import { verifyPassword } from './password'
+import { hashPassword, verifyPassword } from './password'
+import { sellerInputSchema } from './seller-input'
 
 /**
  * Autenticación local (RF-SEG-01). La sesión vive en memoria: al recargar la
@@ -48,17 +49,61 @@ export class AuthServiceImpl implements AuthService {
     return this.session ? can(this.session.role, action) : false
   }
 
-  /** T-014 implementa la creación de vendedores. */
-  async createSeller(): Promise<Result<UserInfo>> {
-    return { ok: false, error: sellerManagementPendingError() }
+  /** El Dueño crea un vendedor activo (RF-SEG-03). */
+  async createSeller(name: string, password: string): Promise<Result<UserInfo>> {
+    if (this.currentUser()?.role !== 'owner') return { ok: false, error: notAuthorizedError() }
+
+    const parsed = sellerInputSchema.safeParse({ name, password })
+    if (!parsed.success) {
+      const detail = parsed.error.issues[0]?.message
+      return { ok: false, error: invalidSellerInputError(detail) }
+    }
+
+    // El hash se calcula fuera de la transacción para no bloquear IndexedDB.
+    const passwordHash = await hashPassword(parsed.data.password)
+    const record: UserRecord = {
+      id: globalThis.crypto.randomUUID(),
+      name: parsed.data.name,
+      role: 'seller',
+      active: true,
+      passwordHash,
+    }
+
+    const created = await this.storage.transaction(async (repos) => {
+      const users = await repos.users.list()
+      const normalizedName = record.name.trim().toLowerCase()
+      const nameExists = users.some((user) => user.name.trim().toLowerCase() === normalizedName)
+
+      if (nameExists) return false
+
+      await repos.users.put(record)
+      return true
+    })
+
+    return created
+      ? { ok: true, value: toUserInfo(record) }
+      : { ok: false, error: nameTakenError() }
   }
 
-  /** T-014 implementa la activación y desactivación de vendedores. */
-  async setSellerActive(): Promise<Result<UserInfo>> {
-    return { ok: false, error: sellerManagementPendingError() }
+  /** El Dueño activa o desactiva a un vendedor; su propia cuenta queda protegida. */
+  async setSellerActive(id: Id, active: boolean): Promise<Result<UserInfo>> {
+    if (this.currentUser()?.role !== 'owner') return { ok: false, error: notAuthorizedError() }
+
+    const record = await this.storage.repositories.users.get(id)
+    if (!record) return { ok: false, error: sellerNotFoundError() }
+    if (record.role === 'owner') return { ok: false, error: ownerProtectedError() }
+    if (record.active === active) return { ok: true, value: toUserInfo(record) }
+
+    const updated: UserRecord = { ...record, active }
+    await this.storage.repositories.users.put(updated)
+
+    return { ok: true, value: toUserInfo(updated) }
   }
 
+  /** Solo el Dueño ve la lista de vendedores (RF-SEG-03). */
   async listSellers(): Promise<UserInfo[]> {
+    if (this.currentUser()?.role !== 'owner') return []
+
     const users = await this.storage.repositories.users.list()
 
     return users.filter((user) => user.role === 'seller').map(toUserInfo)
@@ -83,12 +128,48 @@ function sessionAlreadyOpenError() {
   }
 }
 
-function sellerManagementPendingError() {
+function notAuthorizedError(): AppError {
   return {
-    code: 'NOT_AVAILABLE',
-    what: 'La gestión de vendedores todavía no está disponible.',
-    why: 'Esta versión solo permite iniciar y cerrar sesión.',
-    how: 'Usa la cuenta del Dueño por ahora. La gestión de vendedores llegará en una próxima actualización.',
+    code: 'NOT_AUTHORIZED',
+    what: 'Solo el Dueño puede gestionar vendedores.',
+    why: 'La sesión actual no es del Dueño o no hay una sesión abierta.',
+    how: 'Inicia sesión con la cuenta del Dueño y vuelve a intentarlo.',
+  }
+}
+
+function invalidSellerInputError(detail = 'Los datos del vendedor no son válidos.'): AppError {
+  return {
+    code: 'INVALID_SELLER_INPUT',
+    what: 'No se pudo crear el vendedor.',
+    why: detail,
+    how: 'Revisa el nombre y la contraseña, y vuelve a intentarlo.',
+  }
+}
+
+function nameTakenError(): AppError {
+  return {
+    code: 'SELLER_NAME_TAKEN',
+    what: 'No se pudo crear el vendedor.',
+    why: 'Ya existe una cuenta con ese nombre en este dispositivo.',
+    how: 'Elige otro nombre para el vendedor y vuelve a intentarlo.',
+  }
+}
+
+function sellerNotFoundError(): AppError {
+  return {
+    code: 'SELLER_NOT_FOUND',
+    what: 'No se encontró al vendedor.',
+    why: 'La cuenta que intentas cambiar ya no existe en este dispositivo.',
+    how: 'Actualiza la lista de vendedores y vuelve a intentarlo.',
+  }
+}
+
+function ownerProtectedError(): AppError {
+  return {
+    code: 'CANNOT_DEACTIVATE_OWNER',
+    what: 'No se puede desactivar la cuenta del Dueño.',
+    why: 'El Dueño no puede desactivarse a sí mismo ni quedar sin acceso al local.',
+    how: 'Deja la cuenta del Dueño activa y desactiva solo cuentas de vendedores.',
   }
 }
 

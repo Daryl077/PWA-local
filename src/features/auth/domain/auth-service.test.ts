@@ -6,7 +6,7 @@ import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { UserRecord } from '../../../contracts/entities'
 import { StorageImpl } from '../../../storage/storage'
 import { AuthServiceImpl } from './auth-service'
-import { hashPassword } from './password'
+import { hashPassword, verifyPassword } from './password'
 
 const PASSWORD = 'clave-segura'
 
@@ -137,5 +137,169 @@ describe('AuthService: login y logout', () => {
     const restarted = new AuthServiceImpl(storage)
 
     expect(restarted.currentUser()).toBeNull()
+  })
+})
+
+describe('AuthService: gestión de vendedores (RF-SEG-03)', () => {
+  async function loginAsOwner(): Promise<void> {
+    const result = await auth.login('Ana', PASSWORD)
+    expect(result.ok).toBe(true)
+  }
+
+  async function sellerCount(): Promise<number> {
+    const users = await storage.repositories.users.list()
+    return users.filter((user) => user.role === 'seller').length
+  }
+
+  it('el Dueño crea un vendedor activo con la contraseña guardada como hash', async () => {
+    await loginAsOwner()
+
+    const result = await auth.createSeller('  Carla  ', 'clave-vendedor')
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.value).toMatchObject({ name: 'Carla', role: 'seller', active: true })
+    expect(result.value).not.toHaveProperty('passwordHash')
+
+    const stored = await storage.repositories.users.get(result.value.id)
+    expect(stored?.name).toBe('Carla')
+    expect(stored?.passwordHash).not.toContain('clave-vendedor')
+    expect(await verifyPassword('clave-vendedor', stored?.passwordHash ?? '')).toBe(true)
+  })
+
+  it('el vendedor creado puede iniciar sesión', async () => {
+    await loginAsOwner()
+    const created = await auth.createSeller('Carla', 'clave-vendedor')
+    expect(created.ok).toBe(true)
+
+    auth.logout()
+    const login = await auth.login('  CARLA  ', 'clave-vendedor')
+
+    expect(login.ok).toBe(true)
+    if (login.ok) expect(login.value.role).toBe('seller')
+  })
+
+  it('rechaza nombre y contraseña fuera de rango y no guarda nada', async () => {
+    await loginAsOwner()
+
+    const shortName = await auth.createSeller('A', 'clave-vendedor')
+    const shortPassword = await auth.createSeller('Carla', 'corta')
+
+    for (const result of [shortName, shortPassword]) {
+      expect(result.ok).toBe(false)
+      if (result.ok) continue
+      expect(result.error.code).toBe('INVALID_SELLER_INPUT')
+      expect(result.error.why).not.toBe('')
+      expect(result.error.how).not.toBe('')
+    }
+    expect(await sellerCount()).toBe(0)
+  })
+
+  it('solo el Dueño puede crear vendedores', async () => {
+    const seller = makeSeller(true)
+    await storage.repositories.users.put(seller)
+    await auth.login('Beto', PASSWORD)
+
+    const asSeller = await auth.createSeller('Carla', 'clave-vendedor')
+
+    auth.logout()
+    const anonymous = await auth.createSeller('Carla', 'clave-vendedor')
+
+    for (const result of [asSeller, anonymous]) {
+      expect(result.ok).toBe(false)
+      if (!result.ok) expect(result.error.code).toBe('NOT_AUTHORIZED')
+    }
+    expect(await sellerCount()).toBe(1)
+  })
+
+  it('no permite nombres repetidos sin distinguir mayúsculas ni espacios', async () => {
+    await loginAsOwner()
+    await auth.createSeller('Beto', 'clave-vendedor')
+
+    const duplicateSeller = await auth.createSeller('  BETO  ', 'otra-clave')
+    const duplicateOwner = await auth.createSeller('  ana  ', 'otra-clave')
+
+    for (const result of [duplicateSeller, duplicateOwner]) {
+      expect(result.ok).toBe(false)
+      if (!result.ok) expect(result.error.code).toBe('SELLER_NAME_TAKEN')
+    }
+    expect(await sellerCount()).toBe(1)
+  })
+
+  it('el Dueño lista solo vendedores y sin el hash de la contraseña', async () => {
+    await loginAsOwner()
+    await auth.createSeller('Carla', 'clave-vendedor')
+    await auth.createSeller('Beto', 'clave-vendedor')
+
+    const sellers = await auth.listSellers()
+
+    expect(sellers.map((seller) => seller.name).sort()).toEqual(['Beto', 'Carla'])
+    for (const seller of sellers) {
+      expect(seller.role).toBe('seller')
+      expect(seller).not.toHaveProperty('passwordHash')
+    }
+  })
+
+  it('un Vendedor no puede listar vendedores', async () => {
+    const seller = makeSeller(true)
+    await storage.repositories.users.put(seller)
+    await auth.login('Beto', PASSWORD)
+
+    expect(await auth.listSellers()).toEqual([])
+  })
+
+  it('el Dueño desactiva y reactiva; el desactivado no puede iniciar sesión', async () => {
+    await loginAsOwner()
+    const created = await auth.createSeller('Carla', 'clave-vendedor')
+    expect(created.ok).toBe(true)
+    if (!created.ok) return
+
+    const deactivated = await auth.setSellerActive(created.value.id, false)
+    expect(deactivated.ok).toBe(true)
+    if (deactivated.ok) expect(deactivated.value.active).toBe(false)
+
+    auth.logout()
+    const blockedLogin = await auth.login('Carla', 'clave-vendedor')
+    expect(blockedLogin.ok).toBe(false)
+    if (!blockedLogin.ok) expect(blockedLogin.error.code).toBe('INVALID_CREDENTIALS')
+
+    await auth.login('Ana', PASSWORD)
+    const reactivated = await auth.setSellerActive(created.value.id, true)
+    expect(reactivated.ok).toBe(true)
+    if (reactivated.ok) expect(reactivated.value.active).toBe(true)
+
+    auth.logout()
+    expect((await auth.login('Carla', 'clave-vendedor')).ok).toBe(true)
+  })
+
+  it('el Dueño no puede desactivarse a sí mismo', async () => {
+    await loginAsOwner()
+
+    const result = await auth.setSellerActive(owner.id, false)
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error.code).toBe('CANNOT_DEACTIVATE_OWNER')
+    expect((await storage.repositories.users.get(owner.id))?.active).toBe(true)
+  })
+
+  it('un Vendedor no puede activar ni desactivar cuentas', async () => {
+    const seller = makeSeller(true)
+    await storage.repositories.users.put(seller)
+    await auth.login('Beto', PASSWORD)
+
+    const result = await auth.setSellerActive(seller.id, false)
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error.code).toBe('NOT_AUTHORIZED')
+    expect((await storage.repositories.users.get(seller.id))?.active).toBe(true)
+  })
+
+  it('no permite cambiar una cuenta que no existe', async () => {
+    await loginAsOwner()
+
+    const result = await auth.setSellerActive(globalThis.crypto.randomUUID(), false)
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error.code).toBe('SELLER_NOT_FOUND')
   })
 })
