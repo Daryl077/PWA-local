@@ -99,22 +99,56 @@ describe('AuthService: login y logout', () => {
     expect(auth.currentUser()).toBeNull()
   })
 
-  it('logout cierra la sesión y permite volver a entrar', async () => {
+  it('logout cierra la sesión, quita el bloqueo y permite volver a entrar', async () => {
     await auth.login('Ana', PASSWORD)
+    auth.lock()
 
     auth.logout()
 
     expect(auth.currentUser()).toBeNull()
+    expect(auth.isLocked()).toBe(false)
     expect(auth.can('view_costs')).toBe(false)
     expect((await auth.login('Ana', PASSWORD)).ok).toBe(true)
   })
 
-  it('lock cierra la sesión mientras T-013b agrega el desbloqueo', async () => {
+  it('lock bloquea la pantalla sin cerrar la sesión (RNF-PLA-09)', async () => {
     await auth.login('Ana', PASSWORD)
 
     auth.lock()
 
     expect(auth.currentUser()).toBeNull()
+    expect(auth.isLocked()).toBe(true)
+    expect(auth.can('view_costs')).toBe(false)
+  })
+
+  it('unlock rechaza la contraseña incorrecta y mantiene el bloqueo', async () => {
+    await auth.login('Ana', PASSWORD)
+    auth.lock()
+
+    const result = await auth.unlock('incorrecta')
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error.code).toBe('INVALID_PASSWORD')
+    expect(auth.isLocked()).toBe(true)
+  })
+
+  it('unlock con la contraseña correcta reactiva la sesión', async () => {
+    await auth.login('Ana', PASSWORD)
+    auth.lock()
+
+    const result = await auth.unlock(PASSWORD)
+
+    expect(result.ok).toBe(true)
+    expect(auth.currentUser()?.name).toBe('Ana')
+    expect(auth.isLocked()).toBe(false)
+    expect(auth.can('view_costs')).toBe(true)
+  })
+
+  it('unlock sin sesión devuelve NOT_AUTHENTICATED', async () => {
+    const result = await auth.unlock(PASSWORD)
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error.code).toBe('NOT_AUTHENTICATED')
   })
 
   it('can aplica la matriz del rol de la sesión (RF-SEG-02 y RF-SEG-04)', async () => {

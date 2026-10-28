@@ -8,14 +8,18 @@ import { verifyPassword } from './password'
 /**
  * Autenticación local (RF-SEG-01). La sesión vive en memoria: al recargar la
  * app hay que volver a entrar, que es lo más seguro en un dispositivo compartido.
+ * El bloqueo rápido (RNF-PLA-09) conserva la sesión, pero niega los permisos
+ * hasta que se escribe otra vez la contraseña del usuario actual.
  */
 export class AuthServiceImpl implements AuthService {
   private session: UserInfo | null = null
+  private locked = false
 
   constructor(private readonly storage: Storage) {}
 
   currentUser(): UserInfo | null {
-    return this.session ? { ...this.session } : null
+    // Mientras está bloqueada no hay identidad usable: solo el desbloqueo la restaura.
+    return this.session && !this.locked ? { ...this.session } : null
   }
 
   async login(name: string, password: string): Promise<Result<UserInfo>> {
@@ -37,15 +41,43 @@ export class AuthServiceImpl implements AuthService {
 
   logout(): void {
     this.session = null
+    this.locked = false
   }
 
-  /** T-013b lo reemplazará por un bloqueo que se desbloquea con la contraseña. */
+  /** Bloquea la pantalla sin cerrar la sesión (RNF-PLA-09). */
   lock(): void {
-    this.session = null
+    if (this.session) this.locked = true
+  }
+
+  isLocked(): boolean {
+    return this.locked
+  }
+
+  /**
+   * Desbloquea con la contraseña del usuario actual. Si la cuenta fue
+   * desactivada mientras estaba bloqueada, cierra la sesión.
+   */
+  async unlock(password: string): Promise<Result<UserInfo>> {
+    if (!this.session) return { ok: false, error: notAuthenticatedError() }
+    if (!this.locked) return { ok: true, value: { ...this.session } }
+
+    const record = await this.storage.repositories.users.get(this.session.id)
+
+    if (!record?.active) {
+      this.logout()
+      return { ok: false, error: accountUnavailableError() }
+    }
+
+    if (!(await verifyPassword(password, record.passwordHash))) {
+      return { ok: false, error: invalidPasswordError() }
+    }
+
+    this.locked = false
+    return { ok: true, value: { ...this.session } }
   }
 
   can(action: Action): boolean {
-    return this.session ? can(this.session.role, action) : false
+    return this.session && !this.locked ? can(this.session.role, action) : false
   }
 
   /** T-014 implementa la creación de vendedores. */
@@ -89,6 +121,33 @@ function sellerManagementPendingError() {
     what: 'La gestión de vendedores todavía no está disponible.',
     why: 'Esta versión solo permite iniciar y cerrar sesión.',
     how: 'Usa la cuenta del Dueño por ahora. La gestión de vendedores llegará en una próxima actualización.',
+  }
+}
+
+function invalidPasswordError() {
+  return {
+    code: 'INVALID_PASSWORD',
+    what: 'No se pudo desbloquear la pantalla.',
+    why: 'La contraseña no es correcta.',
+    how: 'Escríbela otra vez. Si no la recuerdas, cierra la sesión y entra de nuevo.',
+  }
+}
+
+function notAuthenticatedError() {
+  return {
+    code: 'NOT_AUTHENTICATED',
+    what: 'No hay una sesión abierta.',
+    why: 'La pantalla bloqueada pertenece a una sesión que ya se cerró.',
+    how: 'Entra con tu usuario y contraseña.',
+  }
+}
+
+function accountUnavailableError() {
+  return {
+    code: 'ACCOUNT_UNAVAILABLE',
+    what: 'No se pudo desbloquear la pantalla.',
+    why: 'Tu cuenta ya no existe o fue desactivada.',
+    how: 'Cierra la sesión y pide al Dueño que revise tu cuenta.',
   }
 }
 
