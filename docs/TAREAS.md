@@ -80,7 +80,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: pedir almacenamiento persistente al iniciar y mostrar en una pantalla "Estado del sistema" si se concedió y cuánto espacio se usa[cite: 1, 7].
   - Requisitos: RNF-PLA-06[cite: 6, 7].
   - Criterios: la pantalla muestra ambos datos y maneja el caso en que el navegador no lo permite[cite: 7].
-- [ ] **T-007 Regla de importaciones entre módulos**
+- [x] **T-007 Regla de importaciones entre módulos**
   - Responsable: Persona 2. Depende de: T-002b[cite: 7].
   - Objetivo: una regla de ESLint que impida importar archivos internos de otro módulo. Debe permitir solo `index.ts` y `src/contracts/`[cite: 3, 7].
   - Criterios: una prueba o ejemplo que demuestre que importar un archivo interno falla el lint, y que importar desde `index.ts` pasa[cite: 7].

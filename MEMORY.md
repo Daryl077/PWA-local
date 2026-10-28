@@ -1,14 +1,14 @@
 # MEMORY.md
 
 ## Estado actual
-- Fase 1 completada al 100%: T-001 a T-006, T-015a, T-010, T-011, T-012, T-013a, T-013b, T-014 y T-015b (Cierre E2E) integradas en main.
-- Próximos pasos: Iniciar Fase 2 / continuar con T-007 (Persona 2).
+- Tareas T-001 a T-006, T-015a, T-010, T-011, T-012, T-013a, T-013b, T-014, T-015b y T-007 (Regla ESLint de arquitectura) completadas e integradas en main.
+- Siguiente tarea: T-008 (Integración Continua / CI) u otras tareas pendientes de la Fase 2 / Persona 2.
 - Versiones instaladas:
   - Node.js: >=22.12.0
   - React / React-DOM: 19.3.1
   - TypeScript: 6.0.3
   - Vite: 8.3.5 (@vitejs/plugin-react 6.1.2)
-  - ESLint: 10.13.0 (@eslint/js 10.0.1, typescript-eslint 8.72.0)
+  - ESLint: 10.13.0 (@eslint/js 10.0.1, typescript-eslint 8.72.0 con regla local de arquitectura)
   - Prettier: 3.9.10
   - Vitest: 5.0.5 (jsdom 28.1.0, fake-indexeddb)
   - Testing Library React: 16.3.3 (@testing-library/jest-dom 7.0.1)
@@ -37,7 +37,7 @@
 ## Hoja de ruta
 - Cimientos y Calidad: T-001 [x], T-002a [x], T-002b [x], T-005 [x].
 - Fase 1 (Persona 1): T-015a [x], T-010 [x], T-011 [x], T-012 [x], T-013a [x], T-013b [x], T-014 [x], T-015b [x].
-- En paralelo (Persona 2): T-003 [x], T-004 [x], T-006 [x], T-007 [ ] (siguiente Persona 2), T-008, T-009.
+- En paralelo (Persona 2): T-003 [x], T-004 [x], T-006 [x], T-007 [x], T-008 [ ] (siguiente Persona 2), T-009.
 - Fase 2 a 7: Inventario, Caja, Ventas, Respaldo, Compras, Reportes.
 
 ## Errores a evitar
