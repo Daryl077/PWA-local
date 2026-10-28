@@ -49,17 +49,17 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: Implementar inicio de sesión y cierre de sesión de forma independiente de la UI pesada.
   - Requisitos: RF-SEG-01[cite: 6, 7].
   - Criterios: Permite autenticar credenciales correctamente mediante contratos[cite: 3].
-- [ ] **T-013b Protección y Bloqueo Rápido**
+- [x] **T-013b Protección y Bloqueo Rápido**
   - Responsable: Persona 1. Depende de: T-013a[cite: 7].
   - Objetivo: bloqueo rápido de la sesión y protección de rutas[cite: 7].
   - Requisitos: RF-SEG-01, RNF-PLA-09[cite: 6, 7].
   - Criterios: las pantallas protegidas no se abren sin sesión. El Vendedor no ve las pantallas del Dueño[cite: 7].
-- [ ] **T-014 Gestión de vendedores**
+- [x] **T-014 Gestión de vendedores**
   - Responsable: Persona 1. Depende de: T-013b[cite: 7].
   - Objetivo: el Dueño crea, activa y desactiva vendedores[cite: 7].
   - Requisitos: RF-SEG-03[cite: 6, 7].
   - Criterios: un vendedor desactivado no puede iniciar sesión. Solo el Dueño accede a esta pantalla[cite: 7].
-- [ ] **T-015b Fakes de Servicios**
+- [x] **T-015b Fakes de Servicios**
   - Responsable: Persona 1. Depende de: T-014, T-005[cite: 7].
   - Objetivo: Implementar los fakes en memoria para `InventoryService`, `CashService`, `SalesService` y `BackupService`[cite: 3, 7].
   - Criterios: Cada fake tiene una prueba mínima y permite iniciar el trabajo de la Persona 2[cite: 3, 7].
