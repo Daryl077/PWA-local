@@ -1,12 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import App from './app'
-import { FirstRunGate, createOwner, hasOwner } from './features/auth'
+import { AppRoot } from './app-root'
+import { AuthServiceImpl } from './features/auth'
 import { StorageImpl } from './storage/storage'
 import './index.css'
 
 const storage = new StorageImpl()
+const auth = new AuthServiceImpl(storage)
 
 const rootElement = document.getElementById('root')
 
@@ -18,11 +19,6 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <FirstRunGate
-      hasOwner={() => hasOwner(storage.repositories.users)}
-      createOwner={(input) => createOwner(storage, input)}
-    >
-      <App />
-    </FirstRunGate>
+    <AppRoot storage={storage} auth={auth} />
   </StrictMode>,
 )
