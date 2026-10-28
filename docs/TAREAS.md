@@ -88,7 +88,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Responsable: Persona 2. Depende de: T-002b[cite: 7].
   - Objetivo: flujo de GitHub Actions que corre `lint`, `typecheck`, `test` y `build` en cada PR, con Node 22[cite: 1, 7].
   - Criterios: un PR con un error de lint lo bloquea[cite: 7].
-- [ ] **T-009 Paquete de contexto para chat web**
+- [x] **T-009 Paquete de contexto para chat web**
   - Responsable: Persona 2. Depende de: T-001[cite: 7].
   - Objetivo: `scripts/context-pack.mjs` (Node, sin dependencias) y el script `npm run context`[cite: 7].
   - Criterios: una prueba confirma que el paquete incluye cada sección y avisa el tamaño aproximado[cite: 7].
