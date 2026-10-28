@@ -1,8 +1,8 @@
 # MEMORY.md
 
 ## Estado actual
-- Tareas T-001, T-002a, T-002b, T-003, T-004, T-005, T-006, T-015a, T-010 y T-011 completadas e integradas en main.
-- Siguiente tarea: T-012 (Primer uso: crear al Dueño) para Persona 1 / T-007 (Regla de importaciones entre módulos) para Persona 2.
+- Tareas T-001, T-002a, T-002b, T-003, T-004, T-005, T-006, T-015a, T-010, T-011, T-012 y T-013a completadas e integradas en main.
+- Siguiente tarea: T-013b (Protección de rutas y bloqueo rápido) para Persona 1 / T-007 (Regla de importaciones entre módulos) para Persona 2.
 - Versiones instaladas:
   - Node.js: >=22.12.0
   - React / React-DOM: 19.3.1
@@ -15,6 +15,7 @@
   - Tailwind CSS: 4.3.3 (@tailwindcss/vite 4.3.3)
   - PWA: vite-plugin-pwa 2.0.0 (workbox 7.4.1)
   - Storage: Dexie & Navigator Storage API
+  - Validation: Zod 4.6.7
 - Integrador del equipo: daryl.
 
 ## Decisiones tomadas
@@ -35,7 +36,7 @@
 
 ## Hoja de ruta
 - Cimientos y Calidad: T-001 [x], T-002a [x], T-002b [x], T-005 [x].
-- Fase 1 (Persona 1): T-015a [x], T-010 [x], T-011 [x], T-012 [ ] (siguiente Persona 1), T-013a/b, T-014, T-015b.
+- Fase 1 (Persona 1): T-015a [x], T-010 [x], T-011 [x], T-012 [x], T-013a [x], T-013b [ ] (siguiente Persona 1), T-014, T-015b.
 - En paralelo (Persona 2): T-003 [x], T-004 [x], T-006 [x], T-007 [ ] (siguiente Persona 2), T-008, T-009.
 - Fase 2 a 7: Inventario, Caja, Ventas, Respaldo, Compras, Reportes.
 

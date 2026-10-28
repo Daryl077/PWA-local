@@ -44,7 +44,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: pantalla que crea el usuario Dueño la primera vez que se abre la app[cite: 7].
   - Requisitos: RF-SEG-01[cite: 6, 7].
   - Criterios: solo se puede crear un Dueño. Validación de entradas con Zod[cite: 7].
-- [ ] **T-013a Autenticación (Login / Logout)**
+- [x] **T-013a Autenticación (Login / Logout)**
   - Responsable: Persona 1. Depende de: T-012.
   - Objetivo: Implementar inicio de sesión y cierre de sesión de forma independiente de la UI pesada.
   - Requisitos: RF-SEG-01[cite: 6, 7].
