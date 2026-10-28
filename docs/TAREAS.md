@@ -84,7 +84,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Responsable: Persona 2. Depende de: T-002b[cite: 7].
   - Objetivo: una regla de ESLint que impida importar archivos internos de otro módulo. Debe permitir solo `index.ts` y `src/contracts/`[cite: 3, 7].
   - Criterios: una prueba o ejemplo que demuestre que importar un archivo interno falla el lint, y que importar desde `index.ts` pasa[cite: 7].
-- [ ] **T-008 Integración continua**
+- [x] **T-008 Integración continua**
   - Responsable: Persona 2. Depende de: T-002b[cite: 7].
   - Objetivo: flujo de GitHub Actions que corre `lint`, `typecheck`, `test` y `build` en cada PR, con Node 22[cite: 1, 7].
   - Criterios: un PR con un error de lint lo bloquea[cite: 7].

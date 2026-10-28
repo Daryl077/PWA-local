@@ -1,8 +1,8 @@
 # MEMORY.md
 
 ## Estado actual
-- Tareas T-001 a T-006, T-015a, T-010, T-011, T-012, T-013a, T-013b, T-014, T-015b y T-007 (Regla ESLint de arquitectura) completadas e integradas en main.
-- Siguiente tarea: T-008 (Integración Continua / CI) u otras tareas pendientes de la Fase 2 / Persona 2.
+- Tareas T-001 a T-006, T-015a, T-010, T-011, T-012, T-013a, T-013b, T-014, T-015b, T-007 y T-008 (CI con GitHub Actions) completadas e integradas en main.
+- Siguiente tarea: T-009 (Paquete de contexto) / Continuar con Fase 2.
 - Versiones instaladas:
   - Node.js: >=22.12.0
   - React / React-DOM: 19.3.1
@@ -16,6 +16,7 @@
   - PWA: vite-plugin-pwa 2.0.0 (workbox 7.4.1)
   - Storage: Dexie & Navigator Storage API
   - Validation: Zod 4.6.7
+  - CI: GitHub Actions (.github/workflows/ci.yml con Node 22)
 - Integrador del equipo: daryl.
 
 ## Decisiones tomadas
@@ -37,7 +38,7 @@
 ## Hoja de ruta
 - Cimientos y Calidad: T-001 [x], T-002a [x], T-002b [x], T-005 [x].
 - Fase 1 (Persona 1): T-015a [x], T-010 [x], T-011 [x], T-012 [x], T-013a [x], T-013b [x], T-014 [x], T-015b [x].
-- En paralelo (Persona 2): T-003 [x], T-004 [x], T-006 [x], T-007 [x], T-008 [ ] (siguiente Persona 2), T-009.
+- En paralelo (Persona 2): T-003 [x], T-004 [x], T-006 [x], T-007 [x], T-008 [x], T-009 [ ] (siguiente Persona 2).
 - Fase 2 a 7: Inventario, Caja, Ventas, Respaldo, Compras, Reportes.
 
 ## Errores a evitar
