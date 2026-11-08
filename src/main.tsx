@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { registerSW } from 'virtual:pwa-register'
 
 import { AppRoot } from './app-root'
 import { AuthServiceImpl } from './features/auth'
@@ -22,3 +23,9 @@ createRoot(rootElement).render(
     <AppRoot storage={storage} auth={auth} />
   </StrictMode>,
 )
+
+// El Service Worker generado por vite-plugin-pwa da el modo sin conexión.
+// Si el navegador no lo soporta, la app sigue funcionando con normalidad.
+if ('serviceWorker' in navigator) {
+  registerSW({ immediate: true })
+}

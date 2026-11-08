@@ -22,6 +22,7 @@ export type Action =
   | 'view_reports'
   | 'make_backup'
   | 'receive_lot'
+  | 'registerwaste'
   | 'manage_categories'
   | 'manage_products'
 
@@ -48,13 +49,21 @@ export interface InventoryService {
     lotId: Id
     quantity: number
     reason: WasteReason
+    userId: Id
   }): Promise<Result<StockMovement>>
   receiveLot(input: {
     productId: Id
     quantity: number
     expiryDate: IsoDate
     unitCostCents: Cents
+    userId: Id
   }): Promise<Result<Lot>>
+  adjustStock(input: {
+    lotId: Id
+    delta: number
+    reason: string
+    userId: Id
+  }): Promise<Result<StockMovement>>
 }
 
 export interface CashService {

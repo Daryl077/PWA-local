@@ -16,6 +16,7 @@ const rolesByAction: Record<Action, readonly Role[]> = {
   view_reports: ['owner'],
   make_backup: ['owner'],
   receive_lot: ['owner'],
+  registerwaste: ['owner'],
   manage_categories: ['owner'],
   manage_products: ['owner'],
 }

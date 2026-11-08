@@ -65,7 +65,8 @@ type CashExpense = { id: Id; cashSessionId: Id; amountCents: Cents; description:
 type Action =
   | 'sell' | 'view_stock' | 'open_own_cash'
   | 'view_costs' | 'edit_prices' | 'adjust_stock' | 'manage_sellers'
-  | 'view_reports' | 'make_backup' | 'receive_lot' | 'manage_categories' | 'manage_products';
+  | 'view_reports' | 'make_backup' | 'receive_lot' | 'registerwaste'
+  | 'manage_categories' | 'manage_products';
 
 interface AuthService {
   currentUser(): UserInfo | null;
@@ -79,13 +80,15 @@ interface AuthService {
 }
 
 type LotAllocation = { lotId: Id; quantity: number; unitCostCents: Cents };
+type ExpiringLot = { lot: Lot; daysLeft: number; productName: string };
 
 interface InventoryService {
   getStock(productId: Id, today: IsoDate): Promise<number>;
   allocateForSale(productId: Id, quantity: number, today: IsoDate): Promise<Result<LotAllocation[]>>;
-  listExpiringLots(today: IsoDate): Promise<Array<{ Lot; daysLeft: lot: number productName: string; }>>;
-  registerWaste(input: { lotId: Id; quantity: number; reason: WasteReason }): Promise<Result<StockMovement>>;
-  receiveLot(input: { productId: Id; quantity: number; expiryDate: IsoDate; unitCostCents: Cents }): Promise<Result<Lot>>;
+  listExpiringLots(today: IsoDate): Promise<ExpiringLot[]>;
+  registerWaste(input: { lotId: Id; quantity: number; reason: WasteReason; userId: Id }): Promise<Result<StockMovement>>;
+  receiveLot(input: { productId: Id; quantity: number; expiryDate: IsoDate; unitCostCents: Cents; userId: Id }): Promise<Result<Lot>>;
+  adjustStock(input: { lotId: Id; delta: number; reason: string; userId: Id }): Promise<Result<StockMovement>>;
 }
 
 interface CashService {

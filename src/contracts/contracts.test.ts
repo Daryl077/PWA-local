@@ -113,6 +113,7 @@ describe('servicios y almacenamiento', () => {
       | 'view_reports'
       | 'make_backup'
       | 'receive_lot'
+      | 'registerwaste'
       | 'manage_categories'
       | 'manage_products'
     >()
