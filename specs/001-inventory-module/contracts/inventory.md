@@ -91,11 +91,15 @@ export interface LotAllocation {
 
 /**
  * Expiring lot information returned by listExpiringLots.
+ * unitCostCents is null when the viewer is a seller.
  */
 export interface ExpiringLot {
-  lot: Lot;
-  daysLeft: number;
+  lotId: string;
+  productId: string;
   productName: string;
+  expiryDate: string;
+  daysLeft: number;
+  unitCostCents: number | null;
 }
 
 /**
@@ -109,13 +113,54 @@ export interface InventoryService {
   allocateForSale(productId: string, quantity: number, today: string): Promise<Result<LotAllocation[]>>;
 
   /** Lists lots that will expire within their category's expiryAlertDays. */
-  listExpiringLots(today: string): Promise<ExpiringLot[]>;
+  listExpiringLots(today: string, viewerRole: Role): Promise<ExpiringLot[]>;
 
-  /** Registers a waste movement (owner only). */
+  /** Lists categories. */
+  listCategories(): Promise<Category[]>;
+
+  /** Creates a category (owner only). */
+  createCategory(input: { name: string; expiryAlertDays: number }): Promise<Result<Category>>;
+
+  /** Updates a category (owner only). */
+  updateCategory(input: { id: string; name?: string; expiryAlertDays?: number }): Promise<Result<Category>>;
+
+  /** Deletes a category only when it has no products (owner only). */
+  deleteCategory(id: string): Promise<Result<void>>;
+
+  /** Lists products. */
+  listProducts(): Promise<Product[]>;
+
+  /** Creates a product linked to an existing category (owner only). */
+  createProduct(input: {
+    name: string;
+    categoryId: string;
+    priceCents: number;
+    costCents: number;
+    minStock: number;
+    isFavorite: boolean;
+    active: boolean;
+  }): Promise<Result<Product>>;
+
+  /** Updates a product (owner only). */
+  updateProduct(input: {
+    id: string;
+    name?: string;
+    categoryId?: string;
+    priceCents?: number;
+    costCents?: number;
+    minStock?: number;
+    isFavorite?: boolean;
+    active?: boolean;
+  }): Promise<Result<Product>>;
+
+  /** Deletes a product without movements; otherwise deactivate it (owner only). */
+  deleteProduct(id: string): Promise<Result<void>>;
+
+  /** Registers a waste movement (owner only). lossCents is quantity * lot.unitCostCents. */
   registerWaste(input: { lotId: string; quantity: number; reason: WasteReason; userId: string }): Promise<Result<StockMovement>>;
 
-  /** Registers receipt of a lot (owner only). */
-  receiveLot(input: { productId: string; quantity: number; expiryDate: string; unitCostCents: number; userId: string }): Promise<Result<Lot>>;
+  /** Registers receipt of a lot (owner only). acceptExpired confirms a past expiry date. */
+  receiveLot(input: { productId: string; quantity: number; expiryDate: string; unitCostCents: number; userId: string; acceptExpired?: boolean }): Promise<Result<Lot>>;
 
   /** Adjusts stock for a lot (owner only). */
   adjustStock(input: { lotId: string; delta: number; reason: string; userId: string }): Promise<Result<StockMovement>>;

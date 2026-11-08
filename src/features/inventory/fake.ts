@@ -1,5 +1,5 @@
 import type { AppError, Result } from '../../contracts/common'
-import type { Lot, StockMovement } from '../../contracts/entities'
+import type { Category, Lot, Product, StockMovement } from '../../contracts/entities'
 import type { ExpiringLot, InventoryService, LotAllocation } from '../../contracts/services'
 
 /** Error común mientras el fake solo cubre el contrato. */
@@ -13,8 +13,8 @@ function featureNotReady(action: string): AppError {
 }
 
 /**
- * Versión en memoria de InventoryService (T-004). No usa Dexie ni implementa
- * PEPS, stock, alertas, mermas ni ajustes reales; esas reglas llegan después.
+ * Versión en memoria de InventoryService (INV-001 e INV-002). No usa Dexie ni
+ * implementa PEPS, stock, alertas, catálogo, mermas ni ajustes reales.
  */
 export function createInventoryFake(): InventoryService {
   return {
@@ -28,6 +28,38 @@ export function createInventoryFake(): InventoryService {
 
     async listExpiringLots(): Promise<ExpiringLot[]> {
       return []
+    },
+
+    async listCategories(): Promise<Category[]> {
+      return []
+    },
+
+    async createCategory(): Promise<Result<Category>> {
+      return { ok: false, error: featureNotReady('crear una categoría') }
+    },
+
+    async updateCategory(): Promise<Result<Category>> {
+      return { ok: false, error: featureNotReady('editar una categoría') }
+    },
+
+    async deleteCategory(): Promise<Result<void>> {
+      return { ok: false, error: featureNotReady('eliminar una categoría') }
+    },
+
+    async listProducts(): Promise<Product[]> {
+      return []
+    },
+
+    async createProduct(): Promise<Result<Product>> {
+      return { ok: false, error: featureNotReady('crear un producto') }
+    },
+
+    async updateProduct(): Promise<Result<Product>> {
+      return { ok: false, error: featureNotReady('editar un producto') }
+    },
+
+    async deleteProduct(): Promise<Result<void>> {
+      return { ok: false, error: featureNotReady('eliminar un producto') }
     },
 
     async registerWaste(): Promise<Result<StockMovement>> {

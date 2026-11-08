@@ -15,6 +15,7 @@ const ALL_ACTIONS: readonly Action[] = [
   'view_reports',
   'make_backup',
   'receive_lot',
+  'register_waste',
   'manage_categories',
   'manage_products',
 ]

@@ -3,7 +3,10 @@ import type { Cents, Id, IsoDate, Result } from './common'
 import type {
   CashExpense,
   CashSession,
+  Category,
   Lot,
+  Product,
+  Role,
   Sale,
   StockMovement,
   UserInfo,
@@ -22,7 +25,7 @@ export type Action =
   | 'view_reports'
   | 'make_backup'
   | 'receive_lot'
-  | 'registerwaste'
+  | 'register_waste'
   | 'manage_categories'
   | 'manage_products'
 
@@ -39,12 +42,58 @@ export interface AuthService {
 
 export type LotAllocation = { lotId: Id; quantity: number; unitCostCents: Cents }
 
-export type ExpiringLot = { lot: Lot; daysLeft: number; productName: string }
+/**
+ * Alerta de vencimiento. El costo unitario es `null` cuando quien consulta es
+ * Vendedor, para no exponer márgenes (RF-SEG-02).
+ */
+export type ExpiringLot = {
+  lotId: Id
+  productId: Id
+  productName: string
+  expiryDate: IsoDate
+  daysLeft: number
+  unitCostCents: Cents | null
+}
 
 export interface InventoryService {
   getStock(productId: Id, today: IsoDate): Promise<number>
   allocateForSale(productId: Id, quantity: number, today: IsoDate): Promise<Result<LotAllocation[]>>
-  listExpiringLots(today: IsoDate): Promise<ExpiringLot[]>
+  listExpiringLots(today: IsoDate, viewerRole: Role): Promise<ExpiringLot[]>
+
+  listCategories(): Promise<Category[]>
+  createCategory(input: { name: string; expiryAlertDays: number }): Promise<Result<Category>>
+  updateCategory(input: {
+    id: Id
+    name?: string
+    expiryAlertDays?: number
+  }): Promise<Result<Category>>
+  /** Solo si la categoría no tiene productos asociados. */
+  deleteCategory(id: Id): Promise<Result<void>>
+
+  listProducts(): Promise<Product[]>
+  createProduct(input: {
+    name: string
+    categoryId: Id
+    priceCents: Cents
+    costCents: Cents
+    minStock: number
+    isFavorite: boolean
+    active: boolean
+  }): Promise<Result<Product>>
+  updateProduct(input: {
+    id: Id
+    name?: string
+    categoryId?: Id
+    priceCents?: Cents
+    costCents?: Cents
+    minStock?: number
+    isFavorite?: boolean
+    active?: boolean
+  }): Promise<Result<Product>>
+  /** Si el producto ya tiene movimientos, se desactiva en vez de borrarse. */
+  deleteProduct(id: Id): Promise<Result<void>>
+
+  /** `lossCents` se calcula como quantity * unitCostCents del lote. */
   registerWaste(input: {
     lotId: Id
     quantity: number
@@ -57,6 +106,8 @@ export interface InventoryService {
     expiryDate: IsoDate
     unitCostCents: Cents
     userId: Id
+    /** Confirma explícitamente el ingreso de un lote ya vencido (RF-INV-02). */
+    acceptExpired?: boolean
   }): Promise<Result<Lot>>
   adjustStock(input: {
     lotId: Id
