@@ -123,3 +123,28 @@ Nunca:
 - Si tocaste el esquema, abre una base creada con la versión anterior y comprueba que la migración conserva los datos.
 - Si tocaste la PWA, ejecuta `npm run build` y `npm run preview`, instala la app y pruébala sin conexión desde las herramientas del navegador.
 - Si tocaste el respaldo, exporta, importa en una base vacía y comprueba que los datos quedan iguales.
+
+## Skills y fuentes externas
+
+### Prioridad de fuentes
+1. `AGENTS.md`
+2. `docs/CONTRATOS.md`
+3. `docs/REGLAS.md`
+4. `docs/TAREAS.md`
+5. `MEMORY.md`
+6. `.specify/memory/constitution.md`
+7. Código existente en `src/`
+
+### Skills permitidas
+- `using-superpowers`: para seleccionar el flujo adecuado antes de implementar.
+- `impeccable`: para revisión final de calidad, seguridad y consistencia.
+- `ui-ux-pro-max`: solo para diseño e implementación de interfaces móviles.
+
+### MCP
+- `context7`: usar para verificar documentación oficial de React, Vite, Dexie, vite-plugin-pwa, Workbox, Zod o Web Crypto cuando haya duda de API o versión.
+
+### Reglas
+- No usar una skill si contradice `AGENTS.md`, `docs/CONTRATOS.md` o la constitución.
+- No usar skills de diseño antes de que la especificación y el plan estén aprobados.
+- No introducir dependencias nuevas sin justificación y aprobación.
+- Antes de implementar, verificar la documentación relevante con Context7 si la API es incierta.
