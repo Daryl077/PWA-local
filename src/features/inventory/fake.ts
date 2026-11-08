@@ -75,3 +75,10 @@ export function createInventoryFake(): InventoryService {
     },
   }
 }
+
+/**
+ * Instancia compartida para la composición de la app y las pruebas de otros
+ * módulos. Para pruebas aisladas usa `createInventoryFake`, así cada prueba
+ * parte de un fake limpio cuando el fake tenga estado en memoria.
+ */
+export const fakeInventoryService: InventoryService = createInventoryFake()
