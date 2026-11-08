@@ -29,13 +29,36 @@ description: "Task list for Inventory Module feature implementation"
 
 **Purpose**: Core infrastructure that must be ready before any user story work
 
-- [ ] T004 Update `src/contracts/services.ts` to add `userId` fields to `receiveLot` and `registerWaste`, add `adjustStock` method, change `listExpiringLots` to return plain array. Update `docs/CONTRATOS.md` accordingly, add new action `register_waste` in `src/features/auth/domain/permissions.ts`, and adjust the inventory service fakes. Write contract unit tests for the updated `InventoryService` (no implementation logic yet).
-- [ ] T005 Update Dexie schema in `src/storage/storage.ts`:
-   - Increment version number
-   - Ensure tables `categories`, `products`, `lots`, `stockMovements` include new fields defined in contracts
-- [ ] T006 [P] Add Zod validation schemas for `Category`, `Product`, `Lot`, `StockMovement` in `src/shared/validation/inventory.ts`
-- No se creará una carpeta `__tests__` vacía; los tests se añadirán junto con cada regla de dominio en la fase correspondiente.
+- [ ] T004 Update `src/contracts/services.ts`:
+    - Add `userId` to `receiveLot` and `registerWaste` input objects
+    - Add `adjustStock(input: { lotId: Id; delta: number; reason: string; userId: Id }): Promise<Result<StockMovement>>`
+    - Ensure `listExpiringLots` returns `Promise<ExpiringLot[]>` (no `Result`)
+    - Add `'registerwaste'` to `Action` type (camelCase, solo owner)
+  Update `docs/CONTRATOS.md` to match.
+  Update `src/features/auth/domain/permissions.ts` to include `registerwaste` action (owner only).
+  Create or update `src/features/inventory/fake.ts` with in-memory implementation of updated `InventoryService` (sin Dexie).
+  Add contract/type tests in `src/features/inventory/contracts.test.ts` validando solo:
+    - InventoryService expone getStock, allocateForSale, listExpiringLots, registerWaste, receiveLot, adjustStock.
+    - receiveLot y registerWaste reciben userId.
+    - listExpiringLots devuelve Promise<ExpiringLot[]>, no Result.
+    - registerwaste permitido solo al Dueño.
+    - Fake implementa InventoryService sin Dexie.
+  **NO implementar en T004**: PEPS, cálculo real de stock, alertas, mermas reales, ajustes reales, pantallas, esquema Dexie.
+  **Files**: `src/contracts/services.ts`, `docs/CONTRATOS.md`, `src/features/auth/domain/permissions.ts`, `src/features/inventory/fake.ts`, `src/features/inventory/contracts.test.ts`
+  **Commands**: `npm run lint`, `npm run typecheck`, `npm run test`, `npm run build`
+  **Dependencies**: None (first task)
 
+- [ ] T005 Update Dexie schema in `src/storage/storage.ts`:
+    - Increment version number
+    - Ensure tables `categories`, `products`, `lots`, `stockMovements` include all fields from contracts
+  **Files**: `src/storage/storage.ts`
+  **Commands**: `npm run lint`, `npm run typecheck`, `npm run test`, `npm run build`
+  **Dependencies**: T004
+
+- [ ] T006 [P] Add Zod validation schemas for `Category`, `Product`, `Lot`, `StockMovement` in `src/shared/validation/inventory.ts`
+  **Files**: `src/shared/validation/inventory.ts`
+  **Commands**: `npm run lint`, `npm run typecheck`, `npm run test`, `npm run build`
+  **Dependencies**: T004
 
 ---
 
@@ -68,9 +91,9 @@ description: "Task list for Inventory Module feature implementation"
 - [ ] T015 [US2] Implement `Lot` domain model in `src/features/inventory/domain/lot.ts`
 - [ ] T016 [US2] Implement `StockMovement` domain model in `src/features/inventory/domain/stockMovement.ts`
 - [ ] T017 [US2] Add `receiveLot` method to `InventoryService` (creates receipt movement) in `src/features/inventory/domain/inventoryService.ts`
-- [ ] T018 [US2] Add `allocateForSale` method (PEPS algorithm, rejects insufficient stock) in `InventoryService`
-- [ ] T019 [US2] Add `registerWaste` method (creates waste movement) in `InventoryService`
-- [ ] T020 [US2] Add `adjustStock` method (creates adjustment movement) in `InventoryService`
+- [ ] T018 [US2] Add `allocateForSale` method (PEPS algorithm, rejects expired lots, fails completely on insufficient stock) in `InventoryService`
+- [ ] T019 [US2] Add `registerWaste` method (creates waste movement, owner only) in `InventoryService`
+- [ ] T020 [US2] Add `adjustStock` method (creates adjustment movement, owner only) in `InventoryService`
 - [ ] T021 [US2] Create UI component `LotForm.tsx` for lot registration and `LotList.tsx` for viewing lots
 - [ ] T022 [P][US2] Write unit tests for receipt, allocation, waste, and adjustment logic in `src/features/inventory/__tests__/stockLogic.test.ts`
 
