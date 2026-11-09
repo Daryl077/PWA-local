@@ -1,12 +1,13 @@
-import type { AppError, Id, Result } from '../../../contracts/common'
+import type { AppError, Cents, Id, Result } from '../../../contracts/common'
 import type { Category, Product } from '../../../contracts/entities'
 import type { AuthService, InventoryService } from '../../../contracts/services'
 import type { Storage } from '../../../contracts/storage'
 import { canDeleteCategory, createCategory, updateCategory } from './category'
-import { createProduct } from './product'
+import { canDeleteProduct, createProduct, updateProduct } from './product'
 import {
   categoryInputSchema,
   partialCategoryInputSchema,
+  partialProductInputSchema,
   productInputSchema,
   type CategoryInput,
   type ProductInput,
@@ -18,10 +19,20 @@ type UpdateCategoryInput = {
   expiryAlertDays?: number
 }
 
+type UpdateProductInput = {
+  id: Id
+  name?: string
+  categoryId?: Id
+  priceCents?: Cents
+  costCents?: Cents
+  minStock?: number
+  isFavorite?: boolean
+  active?: boolean
+}
+
 /**
- * Casos de uso del catálogo (INV-009a e INV-009b-1). Categorías completas y,
- * por ahora, listado y creación de productos. Lotes y movimientos se agregan
- * en tareas posteriores.
+ * Casos de uso del catálogo (INV-009a e INV-009b). Categorías completas y
+ * productos completos. Lotes y movimientos se agregan en tareas posteriores.
  */
 export class InventoryServiceImpl implements Pick<
   InventoryService,
@@ -31,6 +42,8 @@ export class InventoryServiceImpl implements Pick<
   | 'deleteCategory'
   | 'listProducts'
   | 'createProduct'
+  | 'updateProduct'
+  | 'deleteProduct'
 > {
   constructor(
     private readonly storage: Storage,
@@ -153,10 +166,97 @@ export class InventoryServiceImpl implements Pick<
       return { ok: true, value: product }
     })
   }
+
+  async updateProduct(input: UpdateProductInput): Promise<Result<Product>> {
+    if (!this.auth.can('manage_products')) {
+      return { ok: false, error: productNotAuthorizedError() }
+    }
+
+    const parsed = partialProductInputSchema.safeParse({
+      name: input.name,
+      categoryId: input.categoryId,
+      priceCents: input.priceCents,
+      costCents: input.costCents,
+      minStock: input.minStock,
+      isFavorite: input.isFavorite,
+      active: input.active,
+    })
+    if (!parsed.success) {
+      return { ok: false, error: productValidationError(parsed.error.issues[0]?.message) }
+    }
+
+    return await this.storage.transaction(async (repos): Promise<Result<Product>> => {
+      const existing = await repos.products.get(input.id)
+      if (existing === undefined) {
+        return { ok: false, error: productNotFoundError() }
+      }
+
+      if (parsed.data.categoryId !== undefined) {
+        const category = await repos.categories.get(parsed.data.categoryId)
+        if (category === undefined) {
+          return { ok: false, error: productCategoryNotFoundError() }
+        }
+      }
+
+      const changes = pickSentProductChanges(input, parsed.data)
+      const updated = updateProduct(existing, changes)
+      await repos.products.put(updated)
+      return { ok: true, value: updated }
+    })
+  }
+
+  async deleteProduct(id: Id): Promise<Result<void>> {
+    if (!this.auth.can('manage_products')) {
+      return { ok: false, error: productNotAuthorizedError() }
+    }
+
+    return await this.storage.transaction(async (repos): Promise<Result<void>> => {
+      const product = await repos.products.get(id)
+      if (product === undefined) {
+        return { ok: false, error: productNotFoundError() }
+      }
+
+      const movements = await repos.stockMovements.list()
+      if (canDeleteProduct(id, movements)) {
+        await repos.products.delete(id)
+        return { ok: true, value: undefined }
+      }
+
+      const deactivated = updateProduct(product, { active: false })
+      await repos.products.put(deactivated)
+      return { ok: true, value: undefined }
+    })
+  }
 }
 
 function normalizeName(name: string): string {
   return name.trim().toLowerCase()
+}
+
+/**
+ * `partialProductInputSchema` conserva los valores por defecto de `isFavorite` y
+ * `active`. Este filtro aplica solo los campos que la persona envió de verdad.
+ */
+function pickSentProductChanges(
+  input: UpdateProductInput,
+  parsed: Partial<ProductInput>,
+): Partial<ProductInput> {
+  const changes: Partial<ProductInput> = {}
+
+  if (parsed.name !== undefined) changes.name = parsed.name
+  if (parsed.categoryId !== undefined) changes.categoryId = parsed.categoryId
+  if (parsed.priceCents !== undefined) changes.priceCents = parsed.priceCents
+  if (parsed.costCents !== undefined) changes.costCents = parsed.costCents
+  if (parsed.minStock !== undefined) changes.minStock = parsed.minStock
+
+  if (input.isFavorite !== undefined && parsed.isFavorite !== undefined) {
+    changes.isFavorite = parsed.isFavorite
+  }
+  if (input.active !== undefined && parsed.active !== undefined) {
+    changes.active = parsed.active
+  }
+
+  return changes
 }
 
 function validationError(detail?: string): AppError {
@@ -217,8 +317,8 @@ function productNotAuthorizedError(): AppError {
   return {
     code: 'INVENTORY_NOT_AUTHORIZED',
     what: 'No se pudo completar la operación con productos.',
-    why: 'Solo el Dueño puede crear productos.',
-    how: 'Pide al Dueño que cree el producto o que revise tus permisos.',
+    why: 'Solo el Dueño puede crear, editar o eliminar productos.',
+    how: 'Pide al Dueño que haga el cambio o que revise tus permisos.',
   }
 }
 
@@ -228,5 +328,14 @@ function productCategoryNotFoundError(): AppError {
     what: 'No se encontró la categoría del producto.',
     why: 'La categoría seleccionada ya no existe en este dispositivo.',
     how: 'Actualiza la lista de categorías y elige una que exista.',
+  }
+}
+
+function productNotFoundError(): AppError {
+  return {
+    code: 'INVENTORY_PRODUCT_NOT_FOUND',
+    what: 'No se encontró el producto.',
+    why: 'El producto que intentas cambiar ya no existe en este dispositivo.',
+    how: 'Actualiza la lista de productos y vuelve a intentar con uno que exista.',
   }
 }

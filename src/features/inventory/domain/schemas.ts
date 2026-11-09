@@ -135,7 +135,7 @@ export const categoryInputSchema = z.object({
 /** Cambios parciales de categoría: reutiliza las mismas reglas del esquema base. */
 export const partialCategoryInputSchema = categoryInputSchema.partial()
 
-export const productInputSchema: z.ZodType<ProductInput> = z.object({
+export const productInputSchema = z.object({
   name: requiredName('El nombre del producto', 2, 120),
   categoryId: requiredId('La categoría'),
   priceCents: nonNegativeCents('El precio'),
@@ -151,7 +151,10 @@ export const productInputSchema: z.ZodType<ProductInput> = z.object({
       error: 'El campo activo debe ser verdadero o falso. Corrige el valor.',
     })
     .default(true),
-})
+}) satisfies z.ZodType<ProductInput>
+
+/** Cambios parciales de producto: reutiliza las mismas reglas del esquema base. */
+export const partialProductInputSchema = productInputSchema.partial()
 
 export const receiveLotInputSchema: z.ZodType<ReceiveLotInput> = z.object({
   productId: requiredId('El producto'),

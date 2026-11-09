@@ -1,15 +1,39 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import type { AppError, Result } from '../../../contracts/common'
+import type { Product, StockMovement, UserInfo } from '../../../contracts/entities'
 import type { Action, AuthService } from '../../../contracts/services'
 import { StorageImpl } from '../../../storage/storage'
 import { InventoryServiceImpl } from './inventoryService'
 import type { ProductInput } from './schemas'
 
+function stubNotImplemented(): AppError {
+  return {
+    code: 'AUTH_STUB_NOT_IMPLEMENTED',
+    what: 'Método no implementado en el stub de autenticación de pruebas.',
+    why: 'El stub solo implementa can(), que es lo único que InventoryServiceImpl usa.',
+    how: 'No se necesitan los demás métodos de AuthService en estas pruebas.',
+  }
+}
+
 function createAuth(canManage: boolean, action: Action = 'manage_categories'): AuthService {
   return {
-    can: (requested: Action) => canManage && requested === action,
-  } as unknown as AuthService
+    currentUser: (): UserInfo | null => null,
+    login: async (): Promise<Result<UserInfo>> => ({ ok: false, error: stubNotImplemented() }),
+    logout: (): void => {},
+    lock: (): void => {},
+    can: (requested: Action): boolean => canManage && requested === action,
+    createSeller: async (): Promise<Result<UserInfo>> => ({
+      ok: false,
+      error: stubNotImplemented(),
+    }),
+    setSellerActive: async (): Promise<Result<UserInfo>> => ({
+      ok: false,
+      error: stubNotImplemented(),
+    }),
+    listSellers: async (): Promise<UserInfo[]> => [],
+  }
 }
 
 function makeProductInput(categoryId: string, overrides: Partial<ProductInput> = {}): ProductInput {
@@ -22,6 +46,26 @@ function makeProductInput(categoryId: string, overrides: Partial<ProductInput> =
     isFavorite: false,
     active: true,
     ...overrides,
+  }
+}
+
+function makeProduct(categoryId: string, overrides: Partial<Product> = {}): Product {
+  return {
+    id: crypto.randomUUID(),
+    ...makeProductInput(categoryId),
+    ...overrides,
+  }
+}
+
+function makeReceiptMovement(productId: string): StockMovement {
+  return {
+    id: crypto.randomUUID(),
+    productId,
+    lotId: crypto.randomUUID(),
+    occurredAt: '2026-11-09T12:00:00.000Z',
+    userId: crypto.randomUUID(),
+    type: 'receipt',
+    quantity: 10,
   }
 }
 
@@ -296,5 +340,182 @@ describe('createProduct', () => {
 
     expect(result.error.code).toBe('INVENTORY_CATEGORY_NOT_FOUND')
     await expect(storage.repositories.products.list()).resolves.toEqual([])
+  })
+})
+
+describe('updateProduct', () => {
+  it('cambia solo el precio y conserva el resto de los campos y el id', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const product = makeProduct(category.id, { isFavorite: true, active: false })
+    await storage.repositories.products.put(product)
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.updateProduct({ id: product.id, priceCents: 1800 })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.value).toEqual({ ...product, priceCents: 1800 })
+  })
+
+  it('cambia el nombre y lo recorta', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const product = makeProduct(category.id)
+    await storage.repositories.products.put(product)
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.updateProduct({
+      id: product.id,
+      name: '  Cerveza artesanal  ',
+    })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.value).toEqual({ ...product, name: 'Cerveza artesanal' })
+  })
+
+  it('cambia la categoría a una existente', async () => {
+    const cervezas = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    const vinos = { id: crypto.randomUUID(), name: 'Vinos', expiryAlertDays: 60 }
+    await storage.repositories.categories.put(cervezas)
+    await storage.repositories.categories.put(vinos)
+    const product = makeProduct(cervezas.id)
+    await storage.repositories.products.put(product)
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.updateProduct({ id: product.id, categoryId: vinos.id })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.value).toEqual({ ...product, categoryId: vinos.id })
+  })
+
+  it('rechaza un producto inexistente', async () => {
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.updateProduct({
+      id: crypto.randomUUID(),
+      name: 'Cerveza artesanal',
+    })
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('INVENTORY_PRODUCT_NOT_FOUND')
+  })
+
+  it('rechaza una categoría inexistente al cambiar la categoría', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const product = makeProduct(category.id)
+    await storage.repositories.products.put(product)
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.updateProduct({
+      id: product.id,
+      categoryId: crypto.randomUUID(),
+    })
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('INVENTORY_CATEGORY_NOT_FOUND')
+    await expect(storage.repositories.products.get(product.id)).resolves.toEqual(product)
+  })
+
+  it('rechaza a un Vendedor', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const product = makeProduct(category.id)
+    await storage.repositories.products.put(product)
+    service = new InventoryServiceImpl(storage, createAuth(false, 'manage_products'))
+
+    const result = await service.updateProduct({ id: product.id, priceCents: 1800 })
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('INVENTORY_NOT_AUTHORIZED')
+    await expect(storage.repositories.products.get(product.id)).resolves.toEqual(product)
+  })
+
+  it('rechaza datos inválidos', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const product = makeProduct(category.id)
+    await storage.repositories.products.put(product)
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.updateProduct({ id: product.id, priceCents: -1 })
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('VALIDATION_ERROR')
+  })
+})
+
+describe('deleteProduct', () => {
+  it('elimina un producto sin movimientos', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const product = makeProduct(category.id)
+    await storage.repositories.products.put(product)
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.deleteProduct(product.id)
+
+    expect(result.ok).toBe(true)
+    await expect(storage.repositories.products.get(product.id)).resolves.toBeUndefined()
+  })
+
+  it('desactiva un producto con movimientos y conserva el registro', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const product = makeProduct(category.id)
+    await storage.repositories.products.put(product)
+    const movement = makeReceiptMovement(product.id)
+    await storage.repositories.stockMovements.add(movement)
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.deleteProduct(product.id)
+
+    expect(result.ok).toBe(true)
+    await expect(storage.repositories.products.get(product.id)).resolves.toEqual({
+      ...product,
+      active: false,
+    })
+    await expect(storage.repositories.stockMovements.list()).resolves.toEqual([movement])
+  })
+
+  it('rechaza un producto inexistente', async () => {
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.deleteProduct(crypto.randomUUID())
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('INVENTORY_PRODUCT_NOT_FOUND')
+  })
+
+  it('rechaza a un Vendedor', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const product = makeProduct(category.id)
+    await storage.repositories.products.put(product)
+    service = new InventoryServiceImpl(storage, createAuth(false, 'manage_products'))
+
+    const result = await service.deleteProduct(product.id)
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('INVENTORY_NOT_AUTHORIZED')
+    await expect(storage.repositories.products.get(product.id)).resolves.toEqual(product)
   })
 })
