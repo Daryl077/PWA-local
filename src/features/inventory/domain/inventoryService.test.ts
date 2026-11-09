@@ -121,6 +121,18 @@ describe('updateCategory', () => {
     expect(result.value).toEqual({ id: original.id, name: 'Vinos', expiryAlertDays: 90 })
   })
 
+  it('acepta un cambio parcial de días de alerta igual a cero', async () => {
+    const original = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(original)
+
+    const result = await service.updateCategory({ id: original.id, expiryAlertDays: 0 })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.value).toEqual({ id: original.id, name: 'Cervezas', expiryAlertDays: 0 })
+  })
+
   it('rechaza una categoría que no existe', async () => {
     const result = await service.updateCategory({ id: crypto.randomUUID(), name: 'Vinos' })
 

@@ -127,10 +127,13 @@ const wasteReasonSchema: z.ZodType<WasteReason> = z.enum(['expired', 'broken', '
     'El motivo de la merma no es válido. Usa expired (vencido), broken (roto) u other (otro). Corrige el motivo.',
 })
 
-export const categoryInputSchema: z.ZodType<CategoryInput> = z.object({
+export const categoryInputSchema = z.object({
   name: requiredName('El nombre de la categoría', 2, 60),
   expiryAlertDays: nonNegativeInteger('Los días de alerta'),
-})
+}) satisfies z.ZodType<CategoryInput>
+
+/** Cambios parciales de categoría: reutiliza las mismas reglas del esquema base. */
+export const partialCategoryInputSchema = categoryInputSchema.partial()
 
 export const productInputSchema: z.ZodType<ProductInput> = z.object({
   name: requiredName('El nombre del producto', 2, 120),

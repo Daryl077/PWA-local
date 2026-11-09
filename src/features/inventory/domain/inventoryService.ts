@@ -1,29 +1,15 @@
-import type { ZodNumber, ZodObject, ZodString } from 'zod'
-
 import type { AppError, Id, Result } from '../../../contracts/common'
 import type { Category } from '../../../contracts/entities'
 import type { AuthService, InventoryService } from '../../../contracts/services'
 import type { Storage } from '../../../contracts/storage'
 import { canDeleteCategory, createCategory, updateCategory } from './category'
-import { categoryInputSchema, type CategoryInput } from './schemas'
+import { categoryInputSchema, partialCategoryInputSchema, type CategoryInput } from './schemas'
 
 type UpdateCategoryInput = {
   id: Id
   name?: string
   expiryAlertDays?: number
 }
-
-/**
- * `categoryInputSchema` se declara como `z.ZodType<CategoryInput>` en schemas.ts,
- * así que TypeScript no ve `.partial()`. En tiempo de ejecución sí es un ZodObject;
- * este cast solo recupera esa forma sin duplicar ninguna regla de validación.
- */
-const partialCategoryInputSchema = (
-  categoryInputSchema as unknown as ZodObject<{
-    name: ZodString
-    expiryAlertDays: ZodNumber
-  }>
-).partial()
 
 /**
  * Casos de uso del catálogo (INV-009a). Solo categorías: los productos, lotes y
