@@ -59,6 +59,10 @@ class DexieRepository<T extends { id: Id }> implements Repository<T> {
   async put(item: T): Promise<void> {
     await this.db.put(item)
   }
+
+  async delete(id: Id): Promise<void> {
+    await this.db.delete(id)
+  }
 }
 
 class DexieAppendOnlyRepository<T extends { id: Id }> implements AppendOnlyRepository<T> {

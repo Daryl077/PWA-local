@@ -148,6 +148,7 @@ interface Repository<T extends { id: Id }> {
   get(id: Id): Promise<T | undefined>;
   list(): Promise<T[]>;
   put(item: T): Promise<void>;
+  delete(id: Id): Promise<void>;  // Elimina un registro por id. No valida dependencias.
 }
 interface AppendOnlyRepository<T extends { id: Id }> {   // no se edita ni se borra
   add(item: T): Promise<void>;
@@ -172,3 +173,5 @@ interface Storage {
   transaction<T>(work: (repos: Repositories) => Promise<T>): Promise<T>;
 }
 ```
+
+`delete` elimina un registro por su `id`. Solo existe en `Repository<T>`, no en `AppendOnlyRepository<T>`: los repositorios append-only, como `stockMovements`, no permiten borrado. La integridad referencial (por ejemplo, no borrar una categoría que todavía tiene productos) es responsabilidad del servicio o caso de uso; `delete` no valida dependencias.

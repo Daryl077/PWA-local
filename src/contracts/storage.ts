@@ -19,6 +19,7 @@ export interface Repository<T extends { id: Id }> {
   get(id: Id): Promise<T | undefined>
   list(): Promise<T[]>
   put(item: T): Promise<void>
+  delete(id: Id): Promise<void>
 }
 
 /** Movimientos y ventas: solo se agregan, nunca se editan ni se borran. */

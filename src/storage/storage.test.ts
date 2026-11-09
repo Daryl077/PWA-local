@@ -9,6 +9,9 @@ describe('StorageImpl (Integration)', () => {
     storage = new StorageImpl()
     await storage.db.open()
     await storage.db.settings.clear()
+    await storage.db.categories.clear()
+    await storage.db.products.clear()
+    await storage.db.lots.clear()
   })
 
   it('permite guardar y recuperar un ajuste (CRUD básico)', async () => {
@@ -46,5 +49,52 @@ describe('StorageImpl (Integration)', () => {
 
     expect(r1).toBeUndefined()
     expect(r2).toBeUndefined()
+  })
+
+  describe('delete de Repository', () => {
+    it('elimina una categoría por id', async () => {
+      const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+
+      await storage.repositories.categories.put(category)
+      await storage.repositories.categories.delete(category.id)
+
+      await expect(storage.repositories.categories.get(category.id)).resolves.toBeUndefined()
+      await expect(storage.repositories.categories.list()).resolves.toEqual([])
+    })
+
+    it('elimina un producto por id', async () => {
+      const product = {
+        id: crypto.randomUUID(),
+        name: 'Cerveza 620 ml',
+        categoryId: crypto.randomUUID(),
+        priceCents: 1500,
+        costCents: 900,
+        minStock: 6,
+        isFavorite: false,
+        active: true,
+      }
+
+      await storage.repositories.products.put(product)
+      await storage.repositories.products.delete(product.id)
+
+      await expect(storage.repositories.products.get(product.id)).resolves.toBeUndefined()
+      await expect(storage.repositories.products.list()).resolves.toEqual([])
+    })
+
+    it('elimina un lote por id', async () => {
+      const lot = {
+        id: crypto.randomUUID(),
+        productId: crypto.randomUUID(),
+        expiryDate: '2026-12-10',
+        unitCostCents: 900,
+        receivedAt: '2026-11-08T12:00:00.000Z',
+      }
+
+      await storage.repositories.lots.put(lot)
+      await storage.repositories.lots.delete(lot.id)
+
+      await expect(storage.repositories.lots.get(lot.id)).resolves.toBeUndefined()
+      await expect(storage.repositories.lots.list()).resolves.toEqual([])
+    })
   })
 })
