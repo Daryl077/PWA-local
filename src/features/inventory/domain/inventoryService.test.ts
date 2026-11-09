@@ -4,11 +4,25 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import type { Action, AuthService } from '../../../contracts/services'
 import { StorageImpl } from '../../../storage/storage'
 import { InventoryServiceImpl } from './inventoryService'
+import type { ProductInput } from './schemas'
 
-function createAuth(canManageCategories: boolean): AuthService {
+function createAuth(canManage: boolean, action: Action = 'manage_categories'): AuthService {
   return {
-    can: (action: Action) => canManageCategories && action === 'manage_categories',
+    can: (requested: Action) => canManage && requested === action,
   } as unknown as AuthService
+}
+
+function makeProductInput(categoryId: string, overrides: Partial<ProductInput> = {}): ProductInput {
+  return {
+    name: 'Cerveza 620 ml',
+    categoryId,
+    priceCents: 1500,
+    costCents: 900,
+    minStock: 6,
+    isFavorite: false,
+    active: true,
+    ...overrides,
+  }
 }
 
 let storage: StorageImpl
@@ -189,5 +203,98 @@ describe('deleteCategory', () => {
 
     expect(result.ok).toBe(true)
     await expect(storage.repositories.categories.get(category.id)).resolves.toBeUndefined()
+  })
+})
+
+describe('listProducts', () => {
+  it('devuelve los productos guardados, incluidos los inactivos', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    await storage.repositories.products.put({
+      ...makeProductInput(category.id, { name: 'Cerveza 620 ml' }),
+      id: crypto.randomUUID(),
+    })
+    await storage.repositories.products.put({
+      ...makeProductInput(category.id, { name: 'Cerveza antigua', active: false }),
+      id: crypto.randomUUID(),
+    })
+
+    service = new InventoryServiceImpl(storage, createAuth(false))
+
+    const products = await service.listProducts()
+
+    expect(products).toHaveLength(2)
+    expect(products.map((product) => product.name).sort()).toEqual([
+      'Cerveza 620 ml',
+      'Cerveza antigua',
+    ])
+    expect(products.some((product) => product.active === false)).toBe(true)
+  })
+})
+
+describe('createProduct', () => {
+  it('guarda un producto con id generado, nombre recortado y todos los campos', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+    const input = makeProductInput(category.id, {
+      name: '  Cerveza 620 ml  ',
+      isFavorite: true,
+    })
+
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.createProduct(input)
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.value.id).toEqual(expect.any(String))
+    expect(result.value.name).toBe('Cerveza 620 ml')
+    expect(result.value).toEqual({
+      ...input,
+      id: result.value.id,
+      name: 'Cerveza 620 ml',
+    })
+    expect(input.name).toBe('  Cerveza 620 ml  ')
+    await expect(storage.repositories.products.get(result.value.id)).resolves.toEqual(result.value)
+  })
+
+  it('rechaza datos inválidos con un mensaje en español', async () => {
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.createProduct(makeProductInput(crypto.randomUUID(), { name: 'A' }))
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('VALIDATION_ERROR')
+    expect(result.error.why).toContain('demasiado corto')
+  })
+
+  it('rechaza a un Vendedor', async () => {
+    const category = { id: crypto.randomUUID(), name: 'Cervezas', expiryAlertDays: 30 }
+    await storage.repositories.categories.put(category)
+
+    service = new InventoryServiceImpl(storage, createAuth(false, 'manage_products'))
+
+    const result = await service.createProduct(makeProductInput(category.id))
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('INVENTORY_NOT_AUTHORIZED')
+    await expect(storage.repositories.products.list()).resolves.toEqual([])
+  })
+
+  it('rechaza una categoría inexistente y no guarda nada', async () => {
+    service = new InventoryServiceImpl(storage, createAuth(true, 'manage_products'))
+
+    const result = await service.createProduct(makeProductInput(crypto.randomUUID()))
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+
+    expect(result.error.code).toBe('INVENTORY_CATEGORY_NOT_FOUND')
+    await expect(storage.repositories.products.list()).resolves.toEqual([])
   })
 })

@@ -1,9 +1,16 @@
 import type { AppError, Id, Result } from '../../../contracts/common'
-import type { Category } from '../../../contracts/entities'
+import type { Category, Product } from '../../../contracts/entities'
 import type { AuthService, InventoryService } from '../../../contracts/services'
 import type { Storage } from '../../../contracts/storage'
 import { canDeleteCategory, createCategory, updateCategory } from './category'
-import { categoryInputSchema, partialCategoryInputSchema, type CategoryInput } from './schemas'
+import { createProduct } from './product'
+import {
+  categoryInputSchema,
+  partialCategoryInputSchema,
+  productInputSchema,
+  type CategoryInput,
+  type ProductInput,
+} from './schemas'
 
 type UpdateCategoryInput = {
   id: Id
@@ -12,12 +19,18 @@ type UpdateCategoryInput = {
 }
 
 /**
- * Casos de uso del catálogo (INV-009a). Solo categorías: los productos, lotes y
- * movimientos se agregan en tareas posteriores.
+ * Casos de uso del catálogo (INV-009a e INV-009b-1). Categorías completas y,
+ * por ahora, listado y creación de productos. Lotes y movimientos se agregan
+ * en tareas posteriores.
  */
 export class InventoryServiceImpl implements Pick<
   InventoryService,
-  'listCategories' | 'createCategory' | 'updateCategory' | 'deleteCategory'
+  | 'listCategories'
+  | 'createCategory'
+  | 'updateCategory'
+  | 'deleteCategory'
+  | 'listProducts'
+  | 'createProduct'
 > {
   constructor(
     private readonly storage: Storage,
@@ -113,6 +126,33 @@ export class InventoryServiceImpl implements Pick<
       return { ok: true, value: undefined }
     })
   }
+
+  async listProducts(): Promise<Product[]> {
+    return await this.storage.repositories.products.list()
+  }
+
+  async createProduct(input: ProductInput): Promise<Result<Product>> {
+    if (!this.auth.can('manage_products')) {
+      return { ok: false, error: productNotAuthorizedError() }
+    }
+
+    const parsed = productInputSchema.safeParse(input)
+    if (!parsed.success) {
+      return { ok: false, error: productValidationError(parsed.error.issues[0]?.message) }
+    }
+
+    const product = createProduct(globalThis.crypto.randomUUID(), parsed.data)
+
+    return await this.storage.transaction(async (repos): Promise<Result<Product>> => {
+      const category = await repos.categories.get(product.categoryId)
+      if (category === undefined) {
+        return { ok: false, error: productCategoryNotFoundError() }
+      }
+
+      await repos.products.put(product)
+      return { ok: true, value: product }
+    })
+  }
 }
 
 function normalizeName(name: string): string {
@@ -161,5 +201,32 @@ function categoryHasProductsError(): AppError {
     what: 'No se pudo eliminar la categoría.',
     why: 'Todavía tiene productos asociados y borrarla dejaría productos sin categoría.',
     how: 'Mueve o elimina primero esos productos, y luego vuelve a intentar.',
+  }
+}
+
+function productValidationError(detail?: string): AppError {
+  return {
+    code: 'VALIDATION_ERROR',
+    what: 'No se pudo guardar el producto porque los datos no son válidos.',
+    why: detail ?? 'Los datos del producto no son válidos.',
+    how: 'Corrige el campo indicado y vuelve a intentar.',
+  }
+}
+
+function productNotAuthorizedError(): AppError {
+  return {
+    code: 'INVENTORY_NOT_AUTHORIZED',
+    what: 'No se pudo completar la operación con productos.',
+    why: 'Solo el Dueño puede crear productos.',
+    how: 'Pide al Dueño que cree el producto o que revise tus permisos.',
+  }
+}
+
+function productCategoryNotFoundError(): AppError {
+  return {
+    code: 'INVENTORY_CATEGORY_NOT_FOUND',
+    what: 'No se encontró la categoría del producto.',
+    why: 'La categoría seleccionada ya no existe en este dispositivo.',
+    how: 'Actualiza la lista de categorías y elige una que exista.',
   }
 }
