@@ -115,3 +115,27 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Lint, typecheck, test y build quedan en verde.
 
 - [x] INV-012 Servicio de inventario y almacenamiento de lotes
+
+## Fase 5 — Lotes y alertas
+
+- [ ] INV-013 Pantalla de lotes e ingreso de mercadería
+  Responsable: Persona 1
+  Dependencias: INV-001, INV-008, INV-009b-2, INV-010a, INV-011, INV-012
+  Requisitos: RF-INV-02, RF-INV-03, RF-INV-05, RF-INV-06
+  Objetivo: implementar la pantalla para registrar ingresos de mercadería y consultar lotes y stock.
+  Criterios de aceptación:
+  - Existe LotForm para registrar un ingreso de mercadería.
+  - Existe LotList para mostrar lotes de un producto.
+  - Existe LotScreen para orquestar carga, estados y acciones.
+  - El Dueño puede registrar un ingreso con producto, cantidad, vencimiento y costo unitario.
+  - El Vendedor puede consultar lotes y stock.
+  - El Vendedor no ve botones de ingreso, merma ni ajuste.
+  - La pantalla usa InventoryService y auth por props.
+  - Usa receiveLot, getStock, listExpiringLots y registerWaste del servicio.
+  - Hay estados de carga, lista vacía y error.
+  - Los errores usan Result y AppError.
+  - Los botones miden al menos 44 px.
+  - Los campos tienen etiquetas accesibles.
+  - No se implementa navegación, conexión con app.tsx, index.ts, fake.ts, contratos ni almacenamiento.
+  - No se implementa alertas de vencimiento.
+  - Lint, typecheck, test y build quedan en verde.

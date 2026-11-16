@@ -106,3 +106,13 @@
 - No se modificaron contratos, almacenamiento, UI, index.ts, fake.ts, app.tsx ni app-root.tsx.
 - Lint, typecheck, test y build quedaron en verde.
 - La suite completa pasó 144/144.
+
+## Siguiente tarea: INV-013
+
+- La siguiente tarea de inventario es INV-013: pantalla de lotes e ingreso de mercadería.
+- La tarea es solo UI y pruebas de UI.
+- No incluye contratos, almacenamiento, navegación ni conexión con app.
+- El Dueño puede registrar ingresos de mercadería.
+- El Vendedor puede consultar lotes y stock.
+- Los permisos se validan con auth.can.
+- La pantalla usa InventoryService y auth por props.
