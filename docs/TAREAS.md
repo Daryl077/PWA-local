@@ -93,3 +93,23 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Objetivo: `scripts/context-pack.mjs` (Node, sin dependencias) y el script `npm run context`[cite: 7].
   - Criterios: una prueba confirma que el paquete incluye cada sección y avisa el tamaño aproximado[cite: 7].
   - [x] INV-010a Pantalla de categorías
+  ## Fase 4 — Lotes y stock
+
+- [ ] INV-011 Modelo de lote y movimientos de stock
+  Responsable: Persona 1
+  Dependencias: INV-001, INV-008, INV-009b-2, INV-010a
+  Requisitos: RF-INV-02, RF-INV-03, RF-INV-06
+  Objetivo: implementar el modelo de dominio de lotes y movimientos de stock, con reglas puras y pruebas.
+  Criterios de aceptación:
+  - Existe el modelo de Lote con producto, cantidad, fecha de vencimiento, costo unitario y fecha de ingreso.
+  - Existe el modelo de StockMovement para ingreso, venta, merma y ajuste.
+  - Los movimientos son inmutables y append-only.
+  - Una venta referencia el lote del que salió el stock.
+  - Una merma registra motivo y pérdida.
+  - Un ajuste registra delta y motivo.
+  - Las reglas de stock son funciones puras y no dependen de React ni Dexie.
+  - Las validaciones usan Zod.
+  - Los errores usan Result y AppError.
+  - Las pruebas cubren ingreso, venta, merma, ajuste, stock insuficiente y lotes vencidos.
+  - No se implementa UI, navegación, conexión con app.tsx, index.ts, fake.ts, contratos ni almacenamiento.
+  - Lint, typecheck, test y build quedan en verde.

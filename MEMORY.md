@@ -62,3 +62,15 @@
 - No se tocaron index.ts, fake.ts, dominio, contratos, almacenamiento, app.tsx ni app-root.tsx.
 - Lint, typecheck, test y build quedaron en verde.
 - La suite completa pasó 200/200.
+
+## Siguiente tarea: INV-011
+
+- La siguiente tarea de inventario es INV-011: modelo de lote y movimientos de stock.
+- Se basa en T015 de specs/001-inventory-module/tasks.md.
+- Cubre RF-INV-02, RF-INV-03 y RF-INV-06.
+- La tarea es solo dominio y pruebas.
+- No incluye UI, navegación, conexión con app, contratos ni almacenamiento.
+- Los movimientos de stock son inmutables y append-only.
+- Una venta referencia el lote del que salió el stock.
+- Una merma registra motivo y pérdida.
+- Un ajuste registra delta y motivo.
