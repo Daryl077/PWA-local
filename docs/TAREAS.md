@@ -113,3 +113,21 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Las pruebas cubren ingreso, venta, merma, ajuste, stock insuficiente y lotes vencidos.
   - No se implementa UI, navegación, conexión con app.tsx, index.ts, fake.ts, contratos ni almacenamiento.
   - Lint, typecheck, test y build quedan en verde.
+
+  - [ ] INV-012 Servicio de inventario y almacenamiento de lotes
+  Responsable: Persona 1
+  Dependencias: INV-001, INV-008, INV-009b-2, INV-010a, INV-011
+  Requisitos: RF-INV-02, RF-INV-03, RF-INV-04, RF-INV-05, RF-INV-06
+  Objetivo: implementar InventoryServiceImpl usando Storage y el dominio de lotes y movimientos.
+  Criterios de aceptación:
+  - Existe InventoryServiceImpl que implementa los métodos del contrato InventoryService.
+  - receiveLot crea un lote y un movimiento de ingreso.
+  - getStock calcula el stock disponible de un producto excluyendo lotes vencidos.
+  - allocateForSale asigna lotes con PEPS y rechaza si no hay stock suficiente.
+  - listExpiringLots devuelve lotes próximos a vencer con días restantes y nombre del producto.
+  - registerWaste registra una merma con motivo y pérdida calculada.
+  - Los movimientos se guardan mediante AppendOnlyRepository.
+  - Los lotes se guardan mediante Repository.
+  - No se modifica el contrato InventoryService.
+  - No se implementa UI, navegación, conexión con app.tsx, index.ts, fake.ts, contratos ni pantallas.
+  - Lint, typecheck, test y build quedan en verde.
