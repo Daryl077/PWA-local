@@ -89,3 +89,20 @@
 - No se tocaron contratos, almacenamiento, UI, index.ts, fake.ts, app.tsx ni app-root.tsx.
 - Lint, typecheck, test y build quedaron en verde.
 - La suite completa pasó 126/126.
+
+## INV-012 Servicio de inventario y almacenamiento de lotes
+
+- INV-012 quedó terminada.
+- Se implementó InventoryServiceImpl usando Storage y el dominio de lotes y movimientos.
+- receiveLot crea un lote y un movimiento de ingreso dentro de una transacción.
+- getStock calcula el stock disponible excluyendo lotes vencidos.
+- allocateForSale aplica PEPS y rechaza si no hay stock suficiente.
+- listExpiringLots usa expiryAlertDays de la categoría y devuelve días restantes.
+- registerWaste registra una merma con motivo y pérdida calculada.
+- adjustStock registra un ajuste con delta y motivo.
+- Los movimientos se guardan con AppendOnlyRepository.
+- Los lotes se guardan con Repository.
+- El reloj y la generación de IDs son inyectables para pruebas deterministas.
+- No se modificaron contratos, almacenamiento, UI, index.ts, fake.ts, app.tsx ni app-root.tsx.
+- Lint, typecheck, test y build quedaron en verde.
+- La suite completa pasó 144/144.

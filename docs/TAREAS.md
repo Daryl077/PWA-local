@@ -113,3 +113,5 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Las pruebas cubren ingreso, venta, merma, ajuste, stock insuficiente y lotes vencidos.
   - No se implementa UI, navegación, conexión con app.tsx, index.ts, fake.ts, contratos ni almacenamiento.
   - Lint, typecheck, test y build quedan en verde.
+
+- [x] INV-012 Servicio de inventario y almacenamiento de lotes
