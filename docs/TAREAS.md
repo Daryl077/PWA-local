@@ -95,7 +95,7 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - [x] INV-010a Pantalla de categorías
   ## Fase 4 — Lotes y stock
 
-- [ ] INV-011 Modelo de lote y movimientos de stock
+- [x] INV-011 Modelo de lote y movimientos de stock
   Responsable: Persona 1
   Dependencias: INV-001, INV-008, INV-009b-2, INV-010a
   Requisitos: RF-INV-02, RF-INV-03, RF-INV-06

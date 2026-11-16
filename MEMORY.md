@@ -74,3 +74,18 @@
 - Una venta referencia el lote del que salió el stock.
 - Una merma registra motivo y pérdida.
 - Un ajuste registra delta y motivo.
+
+## INV-011 Modelo de lote y movimientos de stock
+
+- INV-011 quedó terminada.
+- Se agregaron lot.ts, stock-movement.ts y stock-logic.ts.
+- Se agregaron pruebas de dominio para lotes y movimientos.
+- Los movimientos son inmutables y append-only.
+- Una venta referencia el lote del que salió el stock.
+- Una merma registra motivo y pérdida.
+- Un ajuste registra delta y motivo.
+- PEPS excluye lotes vencidos.
+- Una venta sin stock suficiente devuelve INSUFFICIENT_STOCK.
+- No se tocaron contratos, almacenamiento, UI, index.ts, fake.ts, app.tsx ni app-root.tsx.
+- Lint, typecheck, test y build quedaron en verde.
+- La suite completa pasó 126/126.
