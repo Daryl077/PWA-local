@@ -45,3 +45,20 @@
 ## Errores a evitar
 - Vite 8 exige Node >=22.12.0; no bajar esa versión.
 - En ramas de tareas no editar MEMORY.md ni docs/TAREAS.md (solo el integrador en main).
+
+## INV-010a Pantalla de categorías
+
+- INV-010a quedó terminada con commit f2eadb8.
+- Se agregaron CategoryList, CategoryForm, CategoryScreen y CategoryScreen.test.tsx.
+- La pantalla usa CategoryInventoryService y auth por props.
+- El Dueño puede crear, editar y eliminar categorías.
+- El Vendedor solo puede ver categorías.
+- Los permisos se validan con auth.can('manage_categories').
+- Los errores usan Result y AppError.
+- Las alertas exponen data-code.
+- Los botones Editar/Eliminar tienen aria-label con el nombre de la categoría.
+- El formulario permite enviar un nombre corto para que Zod muestre el error.
+- Se mantienen estados de carga, lista vacía y error.
+- No se tocaron index.ts, fake.ts, dominio, contratos, almacenamiento, app.tsx ni app-root.tsx.
+- Lint, typecheck, test y build quedaron en verde.
+- La suite completa pasó 200/200.

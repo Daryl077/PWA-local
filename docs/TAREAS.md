@@ -92,3 +92,4 @@ Quien integra (hace merge) actualiza este archivo y `MEMORY.md`. En una rama de 
   - Responsable: Persona 2. Depende de: T-001[cite: 7].
   - Objetivo: `scripts/context-pack.mjs` (Node, sin dependencias) y el script `npm run context`[cite: 7].
   - Criterios: una prueba confirma que el paquete incluye cada sección y avisa el tamaño aproximado[cite: 7].
+  - [x] INV-010a Pantalla de categorías
